@@ -44,6 +44,7 @@ import {
 } from "@/lib/portfolio-data";
 
 const navItems = [
+  { label: "Home", href: "#top" },
   { label: "Work", href: "#work" },
   { label: "Experience", href: "#experience" },
   { label: "Expertise", href: "#expertise" },
