@@ -1,6 +1,7 @@
-import { ArrowLeft, ArrowUpRight, Check, LockKeyhole } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Check, ExternalLink, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProjectGallery } from "@/components/project-gallery";
 import { projects } from "@/lib/portfolio-data";
 
 export function generateStaticParams() {
@@ -36,22 +37,38 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {project.confidential ? (
           <div className="case-access"><LockKeyhole size={18} /> Protected client work</div>
         ) : project.link ? (
-          <a className="button button-primary" href={project.link} target="_blank" rel="noreferrer">
-            Visit product <ArrowUpRight size={16} />
+          <a
+            className="button button-primary"
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Visit ${project.title} product (opens in a new tab)`}
+          >
+            Visit Product <ExternalLink size={16} />
           </a>
         ) : null}
       </header>
 
-      <section className={`case-gallery accent-${project.accent}`} aria-label="Project interface gallery">
-        {[0, 1, 2].map((item) => (
-          <div className="gallery-frame" key={item}>
-            <div className="preview-topbar"><span /><span /><span /><small>view-{item + 1}.tsx</small></div>
-            <div className="gallery-ui">
-              <i /><i /><i /><i /><i /><i />
+      {project.images ? (
+        <>
+          <section className="case-stack case-stack-intro">
+            <span>Core stack</span>
+            <div className="tech-cloud">{project.tech.map((item) => <span key={item}>{item}</span>)}</div>
+          </section>
+          <ProjectGallery images={project.images} />
+        </>
+      ) : (
+        <section className={`case-gallery accent-${project.accent}`} aria-label="Project interface gallery">
+          {[0, 1, 2].map((item) => (
+            <div className="gallery-frame" key={item}>
+              <div className="preview-topbar"><span /><span /><span /><small>view-{item + 1}.tsx</small></div>
+              <div className="gallery-ui">
+                <i /><i /><i /><i /><i /><i />
+              </div>
             </div>
-          </div>
-        ))}
-      </section>
+          ))}
+        </section>
+      )}
 
       <section className="case-narrative">
         <div><span>Challenge</span><h2>Making operational complexity feel manageable.</h2></div>
@@ -72,10 +89,31 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </ul>
       </section>
 
-      <section className="case-stack">
-        <span>Core stack</span>
-        <div className="tech-cloud">{project.tech.map((item) => <span key={item}>{item}</span>)}</div>
-      </section>
+      {project.images && project.link && (
+        <section className="oms-final-cta">
+          <div>
+            <span className="project-eyebrow">Live product</span>
+            <h2>See the trading platform in context.</h2>
+            <p>Visit the live Pasargad Trader application in a new browser tab.</p>
+          </div>
+          <a
+            className="button button-primary"
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Visit ${project.title} product (opens in a new tab)`}
+          >
+            Visit Product <ExternalLink size={16} />
+          </a>
+        </section>
+      )}
+
+      {!project.images && (
+        <section className="case-stack">
+          <span>Core stack</span>
+          <div className="tech-cloud">{project.tech.map((item) => <span key={item}>{item}</span>)}</div>
+        </section>
+      )}
 
       <footer className="case-footer">
         <Link href="/#work"><ArrowLeft size={16} /> Explore other work</Link>

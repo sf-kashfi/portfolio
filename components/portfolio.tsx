@@ -27,6 +27,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -236,6 +237,73 @@ function SectionHeading({
 }
 
 function ProjectPreview({ project }: { project: Project }) {
+  const { resolvedTheme } = useTheme();
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+
+  if (project.images?.length) {
+    if (!mounted && project.lightPreviewImages?.length) {
+      return (
+        <div
+          className={`project-preview project-preview-real accent-${project.accent}`}
+          role="status"
+          aria-label="Loading OMS project screenshots"
+          aria-busy="true"
+        >
+          <div className="oms-preview-header" aria-hidden="true">
+            <span /><span /><span />
+            <small>OMS / LIVE TRADING ENVIRONMENT</small>
+            <i>REAL-TIME</i>
+          </div>
+          <div className="oms-preview-grid oms-preview-loading" aria-hidden="true">
+            <figure className="oms-preview-main" />
+            <div className="oms-preview-supporting"><figure /><figure /></div>
+          </div>
+        </div>
+      );
+    }
+
+    const previewImages = resolvedTheme === "light" && project.lightPreviewImages?.length
+      ? project.lightPreviewImages
+      : project.images;
+    const [hero, ...supporting] = previewImages;
+
+    return (
+      <div className={`project-preview project-preview-real accent-${project.accent}`}>
+        <div className="oms-preview-header" aria-hidden="true">
+          <span /><span /><span />
+          <small>OMS / LIVE TRADING ENVIRONMENT</small>
+          <i>REAL-TIME</i>
+        </div>
+        <div className="oms-preview-grid">
+          <figure className="oms-preview-main">
+            <Image
+              src={hero.src}
+              alt={hero.alt}
+              fill
+              loading="lazy"
+              sizes="(max-width: 640px) calc(100vw - 52px), (max-width: 840px) 65vw, (max-width: 1100px) 46vw, 52vw"
+            />
+            <figcaption>{hero.label}</figcaption>
+          </figure>
+          <div className="oms-preview-supporting">
+            {supporting.slice(0, 2).map((image) => (
+              <figure key={image.label}>
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 640px) calc(50vw - 31px), (max-width: 840px) 25vw, 20vw"
+                />
+                <figcaption>{image.label}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`project-preview accent-${project.accent}`}>
       <div className="preview-topbar"><span /><span /><span /><small>{project.slug}.app</small></div>
@@ -292,7 +360,13 @@ function ProjectDialog({ project }: { project: Project }) {
                 Full case study <ArrowRight size={16} />
               </a>
               {project.link && (
-                <a className="button button-primary" href={project.link} target="_blank" rel="noreferrer">
+                <a
+                  className="button button-primary"
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit ${project.title} product (opens in a new tab)`}
+                >
                   Visit project <ExternalLink size={16} />
                 </a>
               )}
@@ -392,7 +466,7 @@ export function Portfolio() {
             index="01"
             eyebrow="Featured Projects"
             title="Built for complexity. Designed for people."
-            copy="Selected enterprise products and platforms I've designed and built. Select a card to view the full case study, tech stack, and final results."
+            copy="Selected enterprise products and platforms I've designed and built. Explore each case study for the product challenge, engineering approach, stack, and measurable outcomes."
           />
           <div className="projects-grid">
             {projects.slice(0, 3).map((project, index) => (

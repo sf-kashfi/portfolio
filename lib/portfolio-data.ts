@@ -1,3 +1,17 @@
+export type ProjectImage = {
+  src: string;
+  alt: string;
+  label: string;
+  description: string;
+  group: "Market intelligence" | "Trading operations" | "Portfolio & access";
+  theme: "light" | "dark";
+  emphasis: "hero" | "feature" | "supporting";
+  width: number;
+  height: number;
+};
+
+export type ProjectPreviewImage = Pick<ProjectImage, "src" | "alt" | "label">;
+
 export type Project = {
   slug: string;
   title: string;
@@ -9,8 +23,12 @@ export type Project = {
   tech: string[];
   link?: string;
   confidential?: boolean;
+  images?: ProjectImage[];
+  lightPreviewImages?: ProjectPreviewImage[];
   accent: "teal" | "coral" | "amber";
 };
+
+const oms = (file: string) => `/images/projects/oms/${file}`;
 
 export const profile = {
   name: "Fatemeh Kashfi",
@@ -83,6 +101,275 @@ export const experience = [
 
 export const projects: Project[] = [
   {
+    slug: "order-management",
+    title: "OMS",
+    eyebrow: "Financial trading platform",
+    summary:
+      "A comprehensive Order Management System built with React to streamline trading across financial instruments—from market watch and execution to portfolios, accounting, OTC workflows, and analysis.",
+    challenge:
+      "Unify large, rapidly changing market datasets and high-stakes trading actions in an interface that remains fast, legible, and dependable for expert operators.",
+    solution:
+      "A performance-focused React and TypeScript frontend with normalized Redux Toolkit state, saga-driven workflows, AG Grid data surfaces, validated forms, and domain-specific visualizations including portfolio treemaps.",
+    achievements: [
+      "30% UI performance improvement",
+      "20% task-efficiency increase",
+      "Multi-instrument trading workflows",
+      "Real-time portfolio visualization",
+    ],
+    tech: [
+      "React",
+      "TypeScript",
+      "Redux",
+      "Redux Toolkit",
+      "Redux Saga",
+      "Material UI",
+      "AG Grid",
+      "React Hook Form",
+      "Yup",
+    ],
+    lightPreviewImages: [
+      {
+        src: oms("technical-analysis-light.png"),
+        alt: "OMS light-theme technical analysis workspace with candlestick chart, volume, and drawing tools",
+        label: "Technical analysis",
+      },
+      {
+        src: oms("market-treemap-light.png"),
+        alt: "OMS light-theme market treemap showing sector and instrument performance with proportional tiles",
+        label: "Market treemap",
+      },
+      {
+        src: oms("broker-order-entry-light.png"),
+        alt: "OMS light-theme order entry workflow with broker selection, market watch, and order history",
+        label: "Order entry",
+      },
+    ],
+    images: [
+      {
+        src: oms("market-overview.png"),
+        alt: "OMS market overview dashboard with index chart, capital activity, and high-volume trading tables",
+        label: "Market overview",
+        description: "A consolidated view of market movement, capital activity, high-volume symbols, and live index performance.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "hero",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("market-treemap.png"),
+        alt: "OMS market treemap visualizing portfolio and sector performance with proportional tiles",
+        label: "Market treemap",
+        description: "A proportional heat map that makes sector breadth, winners, and laggards immediately scannable.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("technical-analysis.png"),
+        alt: "OMS technical analysis workspace showing a detailed candlestick chart and trading volume",
+        label: "Technical analysis",
+        description: "A focused charting workspace with candlesticks, volume, drawing tools, and market context.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 487,
+      },
+      {
+        src: oms("symbol-dashboard.png"),
+        alt: "OMS symbol dashboard combining trade flow, valuation, market depth, and financial indicators",
+        label: "Symbol dashboard",
+        description: "Dense symbol-level intelligence organized into clear analytical modules and comparison panels.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 488,
+      },
+      {
+        src: oms("symbol-analysis.png"),
+        alt: "OMS symbol analysis screen with indicators, support and resistance levels, and market status",
+        label: "Symbol analysis",
+        description: "Technical indicators, price levels, and trend signals brought together for faster evaluation.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 488,
+      },
+      {
+        src: oms("market-depth.png"),
+        alt: "OMS market depth table with bid and ask quantities across a large instrument watchlist",
+        label: "Market depth",
+        description: "A high-density depth surface designed for scanning bid, ask, volume, and price movement.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 487,
+      },
+      {
+        src: oms("market-watch.png"),
+        alt: "OMS market watch with instrument sparklines, live prices, and bid and ask columns",
+        label: "Market watch",
+        description: "Live instruments, compact trend lines, price changes, and market actions in one operational view.",
+        group: "Market intelligence",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 489,
+      },
+      {
+        src: oms("legacy-market-overview-light.png"),
+        alt: "OMS light-theme chronological order history with account balances and conditional order actions",
+        label: "Order timeline",
+        description: "A date-grouped order history that keeps balances, status, and conditional order actions close at hand.",
+        group: "Trading operations",
+        theme: "light",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("orders-market-watch.png"),
+        alt: "OMS trading workspace with market watch, order book, and order management grids",
+        label: "Orders & market watch",
+        description: "A multi-panel workspace for monitoring instruments while managing active and historical orders.",
+        group: "Trading operations",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("orders-and-trades.png"),
+        alt: "OMS portfolio and order tracking workspace with holdings and active order grids",
+        label: "Orders & trades",
+        description: "Holdings and order state stay linked so operators can monitor positions while tracking every execution.",
+        group: "Trading operations",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("order-ticket-light.png"),
+        alt: "OMS light-theme order ticket over market watch and order history tables",
+        label: "Order ticket",
+        description: "A compact execution ticket keeps quantity, price, validity, and order-side controls close to market context.",
+        group: "Trading operations",
+        theme: "light",
+        emphasis: "feature",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("broker-order-entry-light.png"),
+        alt: "OMS light-theme order entry workflow with broker selection and order form",
+        label: "Broker order entry",
+        description: "Broker selection, account controls, and validated execution fields in a guided order workflow.",
+        group: "Trading operations",
+        theme: "light",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("order-amendment.png"),
+        alt: "OMS initial offering and securities subscription request form over order tables",
+        label: "Offering request",
+        description: "Initial offering and subscription requests capture volume, price limits, and validation constraints in one form.",
+        group: "Trading operations",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("trading-calendar.png"),
+        alt: "OMS monthly trading calendar with daily activity indicators and transaction volume summaries",
+        label: "Trading calendar",
+        description: "Monthly activity patterns and buy/sell distribution summarized for historical review.",
+        group: "Trading operations",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 660,
+      },
+      {
+        src: oms("modular-trading-workspace.png"),
+        alt: "OMS modular trading workspace showing market watch, portfolio, and order management panels",
+        label: "Modular workspace",
+        description: "Independent data modules combine into a flexible operating surface for day-to-day trading.",
+        group: "Trading operations",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("otc-requests-light.png"),
+        alt: "OMS light-theme over-the-counter request workflow with request and response tables",
+        label: "OTC requests",
+        description: "Request and response states for over-the-counter transactions presented in a focused workflow.",
+        group: "Trading operations",
+        theme: "light",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("portfolio-market-watch.png"),
+        alt: "OMS portfolio allocation panel beside a comprehensive market watch table",
+        label: "Portfolio allocation",
+        description: "Portfolio distribution and market positions remain visible alongside a detailed instrument watchlist.",
+        group: "Portfolio & access",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("portfolio-dashboard.png"),
+        alt: "OMS portfolio dashboard with allocation chart, holdings table, and market watch",
+        label: "Portfolio dashboard",
+        description: "Allocation, holdings detail, and market context share one surface for faster portfolio decisions.",
+        group: "Portfolio & access",
+        theme: "dark",
+        emphasis: "feature",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("portfolio-allocation-dashboard.png"),
+        alt: "OMS portfolio allocation dashboard with donut chart, instrument table, and allocation tooltip",
+        label: "Allocation detail",
+        description: "Interactive allocation detail links portfolio composition to the underlying instrument data.",
+        group: "Portfolio & access",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+      {
+        src: oms("login.png"),
+        alt: "Pasargad Trader OMS sign-in page with a laptop preview of the market dashboard",
+        label: "Secure access",
+        description: "The authenticated product entry point introduces the trading environment and account access.",
+        group: "Portfolio & access",
+        theme: "dark",
+        emphasis: "supporting",
+        width: 1024,
+        height: 512,
+      },
+    ],
+    link: "https://app.pasargadtrader.ir/",
+    accent: "amber",
+  },
+  {
     slug: "enterprise-workspace",
     title: "Enterprise Workspace",
     eyebrow: "Current · Confidential",
@@ -119,25 +406,6 @@ export const projects: Project[] = [
     tech: ["React", "React Query", "Material UI", "React Hook Form", "Axios"],
     link: "https://omidbank.ir/app/",
     accent: "coral",
-  },
-  {
-    slug: "order-management",
-    title: "Capital Markets OMS",
-    eyebrow: "Trading platform",
-    summary:
-      "A high-traffic order management environment for market watch, portfolios, OTC operations, and dense financial data.",
-    challenge:
-      "Make large, rapidly changing datasets and complex trade actions fast, legible, and dependable for expert operators.",
-    solution:
-      "A performance-focused React and TypeScript frontend using normalized state, sagas, AG Grid, and domain-specific visualizations.",
-    achievements: [
-      "30% UI performance improvement",
-      "20% task-efficiency increase",
-      "Multi-instrument trading workflows",
-    ],
-    tech: ["React", "TypeScript", "Redux Saga", "Material UI", "AG Grid"],
-    link: "https://fatemehkashfi.crevado.com/oms",
-    accent: "amber",
   },
   {
     slug: "investment-funds",
