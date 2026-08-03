@@ -3,9 +3,10 @@ export type ProjectImage = {
   alt: string;
   label: string;
   description: string;
-  group: "Market intelligence" | "Trading operations" | "Portfolio & access";
+  group: string;
   theme: "light" | "dark";
   emphasis: "hero" | "feature" | "supporting";
+  device?: "desktop" | "mobile";
   width: number;
   height: number;
 };
@@ -25,10 +26,25 @@ export type Project = {
   confidential?: boolean;
   images?: ProjectImage[];
   lightPreviewImages?: ProjectPreviewImage[];
+  previewLabel?: string;
+  previewStatus?: string;
+  previewVariant?: "trading" | "investor";
+  businessOverview?: string;
+  technicalOverview?: string;
+  engineeringChallenges?: string[];
+  stackGroups?: { label: string; items: string[] }[];
+  gallery?: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    capabilities: string[];
+    groups: { name: string; description: string }[];
+  };
   accent: "teal" | "coral" | "amber";
 };
 
 const oms = (file: string) => `/images/projects/oms/${file}`;
+const atom = (file: string) => `/images/projects/attom/${file}`;
 
 export const profile = {
   name: "Fatemeh Kashfi",
@@ -367,25 +383,208 @@ export const projects: Project[] = [
       },
     ],
     link: "https://app.pasargadtrader.ir/",
+    previewLabel: "OMS / LIVE TRADING ENVIRONMENT",
+    previewStatus: "REAL-TIME",
+    previewVariant: "trading",
     accent: "amber",
   },
   {
-    slug: "enterprise-workspace",
-    title: "Enterprise Workspace",
-    eyebrow: "Current · Confidential",
+    slug: "atom-investor",
+    title: "Atom Investor (InvestoPod)",
+    eyebrow: "Capital markets · Investor platform",
     summary:
-      "A browser-based operating environment that brings 30+ enterprise applications into one coherent, desktop-like workspace.",
+      "A digital investor gateway for Pasargad funds, connecting Sejam onboarding, portfolio visibility, unit issue and redemption, payment, and order tracking in a responsive RTL experience.",
     challenge:
-      "Independent operational tools needed to coexist without sacrificing performance, permission safety, or usability at highly variable window sizes.",
+      "Give investors a dependable self-service path through regulated identity checks, fund transactions, payment, and account servicing without relying on branch or offline processes.",
     solution:
-      "A typed modular shell with imperative dragging, portal-aware overlay management, container queries, domain services, and shared data primitives.",
+      "A Vite and React SPA with typed domain contracts, Redux Toolkit and saga orchestration, centralized Axios services, and accessible MUI workflows designed for Persian RTL financial data.",
     achievements: [
-      "30+ hosted applications",
-      "12+ domain-scoped modules",
-      "Full meeting lifecycle E2E coverage",
+      "Sejam-backed investor onboarding",
+      "Issue, agreement, and payment orchestration",
+      "Redemption against available fund units",
+      "Filterable orders, revocation, and statements",
     ],
-    tech: ["React", "TypeScript", "React Query", "Playwright", "Container Queries"],
-    confidential: true,
+    tech: ["React", "TypeScript", "Redux Toolkit", "Redux Saga", "Vite", "MUI", "Axios", "MUI Data Grid"],
+    previewLabel: "INVESTOPOD / INVESTOR GATEWAY",
+    previewStatus: "RTL · PWA",
+    previewVariant: "investor",
+    businessOverview:
+      "Atom Investor is the digital investor gateway for funds managed under the Pasargad capital-market services group. It enables investors to open access, complete regulatory identity steps, and place subscription (issue) and redemption requests without relying solely on branch or offline processes. Sejam-backed registration and login lead into portfolio holdings and fund NAV context, multi-step purchases with agreement acceptance and payment, redemption against available units, order tracking with filters and revocation where allowed, and account statement review. Profile tools also support Sejam data refresh and password management, keeping identity, payment, and portfolio data aligned throughout the investor journey.",
+    technicalOverview:
+      "The frontend is a Vite, React, and TypeScript SPA organized into pages, shared components, theme, and an application layer for models, API services, and state. Hash-based routing separates public authentication and landing routes from an authenticated sidebar shell. Redux Toolkit slices and redux-saga coordinate portfolio enrichment, paginated orders with per-document status, statements, fund catalog data, and draft issue creation followed by agreement retrieval. Centralized Axios wrappers attach session tokens, support multipart uploads, normalize API envelopes, and surface Persian toast feedback. MUI Data Grid, Jalali date pickers, multi-step wizards, typed DTOs, reusable forms, and light/dark Yekan themes support a maintainable RTL product as fund and order APIs evolve.",
+    engineeringChallenges: [
+      "Multi-step issue and payment branching: draft creation leads to agreement retrieval, then receipt upload or gateway payment while preserving request context across an external redirect.",
+      "Order-list enrichment: each row combines document status, mapped fund identity, and cancellation eligibility before the Data Grid is ready to render.",
+      "Sejam and fund-access gating: navigation blockers and contextual dialogs prevent investors from entering issue or redemption flows before eligibility checks pass.",
+      "Clear UI and state boundaries: API models, saga side effects, Redux slices, and reusable view components stay separated as transaction workflows grow.",
+    ],
+    stackGroups: [
+      { label: "Core", items: ["React", "TypeScript", "Vite", "React Router DOM (hash)"] },
+      { label: "State", items: ["Redux", "Redux Toolkit", "Redux Saga", "React Context"] },
+      { label: "Data & forms", items: ["Axios", "Controlled forms", "Custom ID/password validation", "MUI LoadingButton"] },
+      { label: "UI & RTL", items: ["MUI", "MUI Lab", "Emotion", "Bootstrap", "iconsax-react", "MUI Icons", "React Toastify", "MUI Carousel"] },
+      { label: "Tables & dates", items: ["MUI X Data Grid", "MUI X Charts", "MUI X Date Pickers", "date-fns-jalali"] },
+      { label: "Tooling", items: ["ESLint", "TypeScript ESLint", "Vite React plugin"] },
+    ],
+    gallery: {
+      eyebrow: "Investor journey",
+      title: "From verified access to settled fund orders.",
+      intro:
+        "The product connects identity, portfolio context, transactions, and servicing in one Persian RTL journey. Desktop data surfaces and focused mobile steps keep the same financial state understandable at every point.",
+      capabilities: ["Sejam access", "Portfolio", "Fund issue", "Payment", "Redemption", "Order tracking", "Statements"],
+      groups: [
+        { name: "Access & identity", description: "Authentication and Sejam verification establish trusted access before an investor can move money or manage fund units." },
+        { name: "Portfolio overview", description: "Responsive dashboards connect holdings, NAV context, bank details, service hours, and the next available action." },
+        { name: "Issue & payment", description: "Guided issue steps preserve fund and request context from amount entry through payment selection and confirmation." },
+        { name: "Servicing & records", description: "Redemption, request status, statements, and filtered RTL grids keep account activity traceable after an order is placed." },
+      ],
+    },
+    images: [
+      {
+        src: atom("Dashboard -1-28.jpg"),
+        alt: "Atom Investor desktop dashboard in Persian showing fund NAV cards, investor holdings, bank accounts, service hours, and issue and redemption journeys",
+        label: "Investor dashboard",
+        description: "A complete investor overview links holdings, current NAVs, bank accounts, operating windows, and the two core fund journeys.",
+        group: "Portfolio overview",
+        theme: "light",
+        emphasis: "hero",
+        device: "desktop",
+        width: 1440,
+        height: 1024,
+      },
+      {
+        src: atom("Investo PWA-39.png"),
+        alt: "Atom Investor mobile dashboard in Persian with funds, holdings, NAV values, account information, and operating hours",
+        label: "Mobile portfolio",
+        description: "The extended mobile dashboard keeps fund access, holdings, NAV values, and service context available without compressing the RTL hierarchy.",
+        group: "Portfolio overview",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 1024,
+      },
+      {
+        src: atom("Investo PWA-29.png"),
+        alt: "Atom Investor mobile fund issue form in Persian with fund selection, NAV date, investment amount, and unit estimate",
+        label: "Fund issue",
+        description: "A focused purchase step translates the investment amount into expected units while keeping fund and NAV context visible.",
+        group: "Issue & payment",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Login-1.png"),
+        alt: "Atom Investor desktop login page in Persian with mobile number and password fields, registration entry point, and partner branding",
+        label: "Investor access",
+        description: "The public entry point separates returning-investor access from the registration path and establishes the Pasargad product context.",
+        group: "Access & identity",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1440,
+        height: 1024,
+      },
+      {
+        src: atom("Investo PWA-12.png"),
+        alt: "Atom Investor mobile Sejam identity verification dialog in Persian with a verification-code field",
+        label: "Sejam verification",
+        description: "A focused verification dialog handles the regulatory identity checkpoint without taking the investor out of the product journey.",
+        group: "Access & identity",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Investo PWA-13.png"),
+        alt: "Atom Investor mobile success dialog confirming Sejam identity verification in Persian",
+        label: "Identity confirmed",
+        description: "A clear success state closes the Sejam step and sets expectations for the protected investor area that follows.",
+        group: "Access & identity",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Investo PWA-35.png"),
+        alt: "Atom Investor mobile payment-method screen in Persian offering account balance, bank gateway, and deposit receipt options",
+        label: "Payment routing",
+        description: "Alternative settlement paths are presented in one decision point, including gateway payment and receipt upload.",
+        group: "Issue & payment",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Investo PWA-37.png"),
+        alt: "Atom Investor mobile payment confirmation in Persian with successful status and transaction reference",
+        label: "Payment confirmed",
+        description: "The gateway return state confirms settlement and exposes a reference investors can use when following the order.",
+        group: "Issue & payment",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Investo PWA-30.png"),
+        alt: "Atom Investor mobile redemption form in Persian showing available and pending units",
+        label: "Unit redemption",
+        description: "Available and pending units are made explicit before the investor submits a redemption request.",
+        group: "Servicing & records",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Investo PWA-6.png"),
+        alt: "Atom Investor mobile issue-request detail in Persian showing status, fund, amount, units, and request date",
+        label: "Order status",
+        description: "A compact request detail makes fund, amount, unit count, date, and current processing status easy to verify.",
+        group: "Servicing & records",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: atom("Dashboard -1-12.jpg"),
+        alt: "Atom Investor desktop account statement in Persian with Jalali date, fund, status, and request-type filters above an RTL table",
+        label: "Account activity",
+        description: "Jalali date, fund, status, and transaction filters turn the account statement into a practical audit surface.",
+        group: "Servicing & records",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1440,
+        height: 1024,
+      },
+      {
+        src: atom("Dashboard -1-36.jpg"),
+        alt: "Atom Investor desktop request report in Persian with status metrics and a detailed RTL orders table",
+        label: "Request reporting",
+        description: "Status summaries and a dense MUI Data Grid support fast scanning across issue and redemption requests.",
+        group: "Servicing & records",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1440,
+        height: 1024,
+      },
+    ],
     accent: "teal",
   },
   {
@@ -406,6 +605,25 @@ export const projects: Project[] = [
     tech: ["React", "React Query", "Material UI", "React Hook Form", "Axios"],
     link: "https://omidbank.ir/app/",
     accent: "coral",
+  },
+  {
+    slug: "enterprise-workspace",
+    title: "Enterprise Workspace",
+    eyebrow: "Current · Confidential",
+    summary:
+      "A browser-based operating environment that brings 30+ enterprise applications into one coherent, desktop-like workspace.",
+    challenge:
+      "Independent operational tools needed to coexist without sacrificing performance, permission safety, or usability at highly variable window sizes.",
+    solution:
+      "A typed modular shell with imperative dragging, portal-aware overlay management, container queries, domain services, and shared data primitives.",
+    achievements: [
+      "30+ hosted applications",
+      "12+ domain-scoped modules",
+      "Full meeting lifecycle E2E coverage",
+    ],
+    tech: ["React", "TypeScript", "React Query", "Playwright", "Container Queries"],
+    confidential: true,
+    accent: "teal",
   },
   {
     slug: "investment-funds",

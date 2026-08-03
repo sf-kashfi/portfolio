@@ -55,7 +55,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <span>Core stack</span>
             <div className="tech-cloud">{project.tech.map((item) => <span key={item}>{item}</span>)}</div>
           </section>
-          <ProjectGallery images={project.images} />
+          <ProjectGallery project={project} />
         </>
       ) : (
         <section className={`case-gallery accent-${project.accent}`} aria-label="Project interface gallery">
@@ -71,11 +71,35 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       )}
 
       <section className="case-narrative">
-        <div><span>Challenge</span><h2>Making operational complexity feel manageable.</h2></div>
-        <p>{project.challenge}</p>
-        <div><span>Engineering approach</span><h2>Architecture that protects both speed and clarity.</h2></div>
-        <p>{project.solution}</p>
+        <div>
+          <span>{project.businessOverview ? "Business overview" : "Challenge"}</span>
+          <h2>{project.businessOverview ? "Digitizing the full investor journey." : "Making operational complexity feel manageable."}</h2>
+        </div>
+        <p>{project.businessOverview ?? project.challenge}</p>
+        <div>
+          <span>{project.technicalOverview ? "Technical overview" : "Engineering approach"}</span>
+          <h2>{project.technicalOverview ? "Stateful workflows, clear product boundaries." : "Architecture that protects both speed and clarity."}</h2>
+        </div>
+        <p>{project.technicalOverview ?? project.solution}</p>
       </section>
+
+      {project.engineeringChallenges && (
+        <section className="case-engineering" aria-labelledby="engineering-challenges-title">
+          <div className="case-engineering-heading">
+            <span className="project-eyebrow">Engineering challenges</span>
+            <h2 id="engineering-challenges-title">Complexity handled below the interface.</h2>
+            <p>Transaction integrity and eligibility rules stay explicit, while the investor sees a guided, coherent journey.</p>
+          </div>
+          <div className="case-engineering-grid">
+            {project.engineeringChallenges.map((challenge, index) => (
+              <article key={challenge}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{challenge}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="case-outcomes">
         <div>
@@ -88,6 +112,23 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           ))}
         </ul>
       </section>
+
+      {project.stackGroups && (
+        <section className="case-technology" aria-labelledby="technology-title">
+          <div>
+            <span className="project-eyebrow">Technology system</span>
+            <h2 id="technology-title">Purpose-built for regulated, data-heavy RTL workflows.</h2>
+          </div>
+          <div className="case-technology-groups">
+            {project.stackGroups.map((group) => (
+              <section key={group.label}>
+                <h3>{group.label}</h3>
+                <div className="tech-row">{group.items.map((item) => <span key={item}>{item}</span>)}</div>
+              </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {project.images && project.link && (
         <section className="oms-final-cta">

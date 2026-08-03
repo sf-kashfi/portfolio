@@ -4,13 +4,20 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import type { ProjectImage } from "@/lib/portfolio-data";
+import type { Project, ProjectImage } from "@/lib/portfolio-data";
 
-const galleryGroups: ProjectImage["group"][] = [
-  "Market intelligence",
-  "Trading operations",
-  "Portfolio & access",
-];
+const omsGallery = {
+  eyebrow: "Product walkthrough",
+  title: "One platform, every trading decision.",
+  intro:
+    "From market discovery and technical analysis to execution, OTC workflows, and portfolio visibility, the interface keeps complex financial operations connected without flattening their detail.",
+  capabilities: ["Market watch", "Orders & trades", "Portfolio", "Accounting", "Analysis", "OTC", "Treemap"],
+  groups: [
+    { name: "Market intelligence", description: "Dense live data becomes a set of focused surfaces for scanning, comparison, and deeper analysis." },
+    { name: "Trading operations", description: "Execution workflows keep market context, validation, and order state close to every action." },
+    { name: "Portfolio & access", description: "Portfolio views connect allocation, positions, and secure access to the broader trading workflow." },
+  ],
+};
 
 function ProductFrame({
   image,
@@ -25,7 +32,7 @@ function ProductFrame({
 }) {
   return (
     <button
-      className={`product-frame product-frame-${image.theme} ${className}`}
+      className={`product-frame product-frame-${image.theme} product-frame-${image.device ?? "desktop"} ${className}`}
       type="button"
       onClick={onOpen}
       aria-label={`Expand ${image.label} screenshot`}
@@ -55,7 +62,9 @@ function ProductFrame({
   );
 }
 
-export function ProjectGallery({ images }: { images: ProjectImage[] }) {
+export function ProjectGallery({ project }: { project: Project }) {
+  const images = project.images ?? [];
+  const gallery = project.gallery ?? omsGallery;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const activeImage = activeIndex === null ? null : images[activeIndex];
 
@@ -68,17 +77,13 @@ export function ProjectGallery({ images }: { images: ProjectImage[] }) {
 
   return (
     <>
-      <section className="oms-showcase" aria-labelledby="oms-showcase-title">
+      <section className={`oms-showcase project-showcase-${project.previewVariant ?? "trading"}`} aria-labelledby="project-showcase-title">
         <div className="oms-showcase-intro">
           <div>
-            <span className="project-eyebrow">Product walkthrough</span>
-            <h2 id="oms-showcase-title">One platform, every trading decision.</h2>
+            <span className="project-eyebrow">{gallery.eyebrow}</span>
+            <h2 id="project-showcase-title">{gallery.title}</h2>
           </div>
-          <p>
-            From market discovery and technical analysis to execution, OTC workflows,
-            and portfolio visibility—the interface keeps complex financial operations
-            connected without flattening their detail.
-          </p>
+          <p>{gallery.intro}</p>
         </div>
 
         <ProductFrame
@@ -88,36 +93,33 @@ export function ProjectGallery({ images }: { images: ProjectImage[] }) {
           onOpen={() => setActiveIndex(0)}
         />
 
-        <div className="oms-capabilities" aria-label="Key OMS capabilities">
-          {["Market watch", "Orders & trades", "Portfolio", "Accounting", "Analysis", "OTC", "Treemap"].map(
+        <div className="oms-capabilities" aria-label={`Key ${project.title} capabilities`}>
+          {gallery.capabilities.map(
             (capability, index) => (
               <span key={capability}><small>{String(index + 1).padStart(2, "0")}</small>{capability}</span>
             ),
           )}
         </div>
 
-        {galleryGroups.map((group) => {
-          const groupImages = images.filter((image, index) => image.group === group && index !== 0);
+        {gallery.groups.map((group, groupIndex) => {
+          const groupImages = images.filter((image, index) => image.group === group.name && index !== 0);
+          const groupId = `group-${group.name.toLowerCase().replaceAll(" ", "-").replaceAll("&", "and")}`;
+
+          if (!groupImages.length) return null;
 
           return (
-            <section className="oms-gallery-group" key={group} aria-labelledby={`group-${group.replaceAll(" ", "-")}`}>
+            <section className="oms-gallery-group" key={group.name} aria-labelledby={groupId}>
               <div className="oms-gallery-heading">
-                <span>{String(galleryGroups.indexOf(group) + 1).padStart(2, "0")}</span>
-                <h3 id={`group-${group.replaceAll(" ", "-")}`}>{group}</h3>
-                <p>
-                  {group === "Market intelligence"
-                    ? "Dense live data becomes a set of focused surfaces for scanning, comparison, and deeper analysis."
-                    : group === "Trading operations"
-                      ? "Execution workflows keep market context, validation, and order state close to every action."
-                      : "Portfolio views connect allocation, positions, and secure access to the broader trading workflow."}
-                </p>
+                <span>{String(groupIndex + 1).padStart(2, "0")}</span>
+                <h3 id={groupId}>{group.name}</h3>
+                <p>{group.description}</p>
               </div>
               <div className="oms-gallery-grid">
                 {groupImages.map((image) => {
                   const imageIndex = images.indexOf(image);
                   return (
                     <article
-                      className={`oms-gallery-item oms-gallery-${image.emphasis}`}
+                      className={`oms-gallery-item oms-gallery-${image.emphasis} oms-gallery-${image.device ?? "desktop"}`}
                       key={image.label}
                     >
                       <ProductFrame image={image} onOpen={() => setActiveIndex(imageIndex)} />

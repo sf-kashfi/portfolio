@@ -239,20 +239,23 @@ function SectionHeading({
 function ProjectPreview({ project }: { project: Project }) {
   const { resolvedTheme } = useTheme();
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const previewLabel = project.previewLabel ?? `${project.slug}.app`;
+  const previewStatus = project.previewStatus ?? "PRODUCT UI";
+  const previewVariant = project.previewVariant ?? "trading";
 
   if (project.images?.length) {
     if (!mounted && project.lightPreviewImages?.length) {
       return (
         <div
-          className={`project-preview project-preview-real accent-${project.accent}`}
+          className={`project-preview project-preview-real preview-${previewVariant} accent-${project.accent}`}
           role="status"
-          aria-label="Loading OMS project screenshots"
+          aria-label={`Loading ${project.title} screenshots`}
           aria-busy="true"
         >
           <div className="oms-preview-header" aria-hidden="true">
             <span /><span /><span />
-            <small>OMS / LIVE TRADING ENVIRONMENT</small>
-            <i>REAL-TIME</i>
+            <small>{previewLabel}</small>
+            <i>{previewStatus}</i>
           </div>
           <div className="oms-preview-grid oms-preview-loading" aria-hidden="true">
             <figure className="oms-preview-main" />
@@ -268,11 +271,11 @@ function ProjectPreview({ project }: { project: Project }) {
     const [hero, ...supporting] = previewImages;
 
     return (
-      <div className={`project-preview project-preview-real accent-${project.accent}`}>
+      <div className={`project-preview project-preview-real preview-${previewVariant} accent-${project.accent}`}>
         <div className="oms-preview-header" aria-hidden="true">
           <span /><span /><span />
-          <small>OMS / LIVE TRADING ENVIRONMENT</small>
-          <i>REAL-TIME</i>
+          <small>{previewLabel}</small>
+          <i>{previewStatus}</i>
         </div>
         <div className="oms-preview-grid">
           <figure className="oms-preview-main">
@@ -486,7 +489,7 @@ export function Portfolio() {
             ))}
           </div>
           <Reveal className="project-archive">
-            <div><span>More product work</span><h3>Investment funds & communication systems</h3></div>
+            <div><span>More product work</span><h3>Enterprise, investment & communication systems</h3></div>
             <div className="archive-links">
               {projects.slice(3).map((project) => <ProjectDialog key={project.slug} project={project} />)}
             </div>
