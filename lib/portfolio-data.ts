@@ -28,7 +28,7 @@ export type Project = {
   lightPreviewImages?: ProjectPreviewImage[];
   previewLabel?: string;
   previewStatus?: string;
-  previewVariant?: "trading" | "investor";
+  previewVariant?: "trading" | "investor" | "banking";
   businessOverview?: string;
   technicalOverview?: string;
   engineeringChallenges?: string[];
@@ -45,6 +45,7 @@ export type Project = {
 
 const oms = (file: string) => `/images/projects/oms/${file}`;
 const atom = (file: string) => `/images/projects/attom/${file}`;
+const pwa = (file: string) => `/images/projects/pwa/${file}`;
 
 export const profile = {
   name: "Fatemeh Kashfi",
@@ -115,7 +116,280 @@ export const experience = [
   },
 ];
 
-export const projects: Project[] = [
+const projectCatalog: Project[] = [
+  {
+    slug: "omid-bank",
+    title: "Omid Bank",
+    eyebrow: "Mobile banking · RTL PWA",
+    summary:
+      "A unified mobile banking PWA connecting wallets, transfers, payments, deposits, cards, loans, investments, and civic services in one production-grade RTL experience.",
+    challenge:
+      "Bring a broad banking architecture into a trustworthy mobile interface while protecting sensitive browser data, coordinating long financial workflows, and staying responsive on constrained networks.",
+    solution:
+      "A lazy-loaded React PWA with layered authorization, encrypted client data, domain-focused state coordinators, validated financial forms, and virtualized mobile collections.",
+    achievements: [
+      "12+ connected banking and lifestyle service families",
+      "Layered consumer and bank-service authorization",
+      "Secure PWA and Android WebView delivery",
+      "Responsive data-heavy financial workflows",
+    ],
+    tech: ["React", "React Router", "TanStack Query", "Material UI", "React Hook Form", "Axios", "Web Crypto", "Framer Motion"],
+    link: "https://omidbank.ir/app/",
+    previewLabel: "OMID BANK / MOBILE SERVICE PLATFORM",
+    previewStatus: "RTL · SECURE PWA",
+    previewVariant: "banking",
+    businessOverview:
+      "Omid Bank helps customers complete everyday banking and adjacent daily tasks without visiting a branch. A service-led home connects wallet operations, card-to-card transfers, bill inquiry and payment, SIM charge and internet packages, mutual funds, and a dedicated banking area for deposits, cards, loans, and onboarding. Civic tools extend the same mobile experience to traffic fines, license status, negative points, and passport inquiries. Mobile OTP provides fast entry, while a second user-management login protects deeper bank workflows and keeps balances, statements, installments, and requests visible in one coherent RTL product.",
+    technicalOverview:
+      "The React application is organized around a large lazy-loaded route catalog spanning independent financial domains. TanStack Query manages server state, while focused Context providers coordinate authentication, wallet, transfer, loan, and modal workflows. Material UI and Emotion provide RTL-aware layouts; React Hook Form and Yup structure validation; and Axios V1/V2 facades isolate backend contracts. Browser sessions use Web Crypto AES-GCM, selected request bodies use AES with RSA-wrapped keys, and guarded route layers separate general access from advanced banking services. Virtualized lists, infinite queries, Suspense fallbacks, WebView-aware layouts, Jalali dates, and i18next keep the product responsive across mobile web and embedded Android contexts.",
+    engineeringChallenges: [
+      "Secure browser-side banking data: AES-GCM protects session cookies, while selected payloads use AES encryption with RSA-wrapped keys before transport.",
+      "Coordinated financial journeys: focused Context handlers connect drawers, dialogs, confirmations, and shared state without pushing every concern through page props.",
+      "Layered authorization: separate guards validate primary and user-management tokens so lightweight consumer services and deeper bank workflows have distinct access boundaries.",
+      "Large route and data surfaces: lazy routes, Suspense fallbacks, virtualized lists, and infinite-query patterns protect startup and scrolling performance on mobile networks.",
+    ],
+    stackGroups: [
+      { label: "Core", items: ["React", "React Router", "Lazy routes", "Suspense"] },
+      { label: "State", items: ["TanStack Query", "React Context", "Infinite queries"] },
+      { label: "Forms & API", items: ["React Hook Form", "Yup", "Axios V1/V2", "Custom interceptors"] },
+      { label: "UI & RTL", items: ["Material UI", "Emotion", "stylis-plugin-rtl", "i18next", "Jalali dates"] },
+      { label: "Security", items: ["Web Crypto AES-GCM", "node-forge RSA", "Layered route guards"] },
+      { label: "Motion & media", items: ["Framer Motion", "Swiper", "react-virtuoso", "QR scan/share", "html2canvas"] },
+    ],
+    gallery: {
+      eyebrow: "Mobile product system",
+      title: "A bank, wallet, and daily-service layer in one hand.",
+      intro:
+        "The walkthrough prioritizes screens that reveal the product's breadth: a service-led home, protected banking tools, transaction flows, long-form loan states, and civic inquiries, all designed as readable Persian RTL mobile experiences.",
+      capabilities: ["Service home", "Wallet", "Transfers", "Deposits & cards", "Loans", "Civic inquiries", "Secure access"],
+      groups: [
+        { name: "Everyday banking", description: "Service discovery, wallet movement, card transfers, and transaction confirmation stay focused and thumb-friendly." },
+        { name: "Deposits & cards", description: "A protected banking layer connects deposit visibility, card lifecycle operations, credentials, and service activation." },
+        { name: "Loans & installments", description: "Lookup, saved facilities, and installment payment states make longer credit workflows understandable on a narrow screen." },
+        { name: "Civic inquiries", description: "Vehicle records and traffic-fine workflows extend the product beyond banking without changing its core mobile interaction language." },
+        { name: "Access & profile", description: "Secondary authentication and customer details support the deeper permissions and identity requirements behind bank services." },
+      ],
+    },
+    images: [
+      {
+        src: pwa("service-home.png"),
+        alt: "Omid Bank Persian RTL mobile service home with bill, internet, charge, transfer, insurance, health, travel, and financial-service shortcuts",
+        label: "Service home",
+        description: "A broad service catalog gives everyday banking and lifestyle tasks a clear, scannable mobile entry point.",
+        group: "Everyday banking",
+        theme: "light",
+        emphasis: "hero",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("card-services-hub.png"),
+        alt: "Omid Bank Persian RTL card-services dashboard with card issuance, card-to-card transfer, password services, and recent transactions",
+        label: "Card services hub",
+        description: "Card issuance, transfers, credential tools, cheque payment, and recent activity share one protected banking surface.",
+        group: "Deposits & cards",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("civic-services-hub.png"),
+        alt: "Omid Bank Persian RTL police-services dashboard with traffic fines, active plates, license inquiry, negative points, and passport inquiry",
+        label: "Civic services",
+        description: "Police and identity inquiries extend the same mobile product into high-frequency civic tasks.",
+        group: "Civic inquiries",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("wallet-account-transfer.png"),
+        alt: "Omid Bank Persian RTL wallet transfer form with digital deposit card, destination tabs, amount, and transfer descriptions",
+        label: "Wallet transfer",
+        description: "A detailed account-transfer form keeps source balance, destination choice, amount, and descriptions visible in one flow.",
+        group: "Everyday banking",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("card-to-card-transfer.png"),
+        alt: "Omid Bank Persian RTL card-to-card transfer form with source card, destination card, amount, and OTP request",
+        label: "Card-to-card transfer",
+        description: "Source credentials, destination details, amount, and dynamic-password retrieval form a compact validated journey.",
+        group: "Everyday banking",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("card-transfer-receipt.png"),
+        alt: "Omid Bank Persian RTL successful card-to-card transaction receipt with amount, tracking code, timestamp, and share actions",
+        label: "Transfer receipt",
+        description: "A receipt-like confirmation makes the amount, reference, service, and sharing actions easy to verify after payment.",
+        group: "Everyday banking",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("deposit-services.png"),
+        alt: "Omid Bank Persian RTL deposit-services dashboard with account card, IBAN conversion, statement, transfer, customer information, and SMS activation",
+        label: "Deposit services",
+        description: "A dedicated deposit workspace connects account identifiers, statements, transfers, profile data, and SMS activation.",
+        group: "Deposits & cards",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("card-operations.png"),
+        alt: "Omid Bank Persian RTL card-operations list for issuance, replacement, cancellation, and blocking",
+        label: "Card lifecycle",
+        description: "Card issuance, replacement, cancellation, and blocking are organized as explicit lifecycle actions.",
+        group: "Deposits & cards",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("card-password-services.png"),
+        alt: "Omid Bank Persian RTL card-password services screen for first password, second password, and dynamic password",
+        label: "Card credentials",
+        description: "Static and dynamic credential tools are separated into clear actions with contextual account information.",
+        group: "Deposits & cards",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("deposit-sms-activation.png"),
+        alt: "Omid Bank Persian RTL deposit SMS activation screen with account summary, mobile number, fee, and confirmation",
+        label: "SMS activation",
+        description: "Fee, account, phone number, and activation window remain visible before a customer confirms the service request.",
+        group: "Deposits & cards",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("loan-installment-payment.png"),
+        alt: "Omid Bank Persian RTL installment payment form for another borrower with loan owner, account selection, and payment amount",
+        label: "Installment payment",
+        description: "Borrower context, source account, and payment amount are sequenced into a focused installment journey.",
+        group: "Loans & installments",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("loan-installment-lookup.png"),
+        alt: "Omid Bank Persian RTL loan dashboard with saved facilities and an installment-number inquiry sheet",
+        label: "Facility lookup",
+        description: "A bottom-sheet lookup keeps saved facilities in context while requesting a new installment number.",
+        group: "Loans & installments",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("saved-loan-number.png"),
+        alt: "Omid Bank Persian RTL save-facility sheet over a successful loan transaction report",
+        label: "Saved facility",
+        description: "Customers can name and retain facility numbers after payment, reducing friction across repeat installment tasks.",
+        group: "Loans & installments",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("vehicle-plate-list.png"),
+        alt: "Omid Bank Persian RTL vehicle-fine screen listing saved Iranian license plates with edit and inquiry actions",
+        label: "Saved vehicle plates",
+        description: "Multiple plate types, edit controls, and a direct inquiry action support households with several vehicles.",
+        group: "Civic inquiries",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("traffic-fines-detail.png"),
+        alt: "Omid Bank Persian RTL vehicle-fine details with plate, total status, individual violations, image links, and payment actions",
+        label: "Traffic fine details",
+        description: "Fine totals, dates, locations, evidence, and individual or bulk payment actions remain legible in a long mobile list.",
+        group: "Civic inquiries",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("paid-fine-status.png"),
+        alt: "Omid Bank Persian RTL paid vehicle-fine status showing a saved plate, inquiry date, and settled confirmation",
+        label: "Settled fine status",
+        description: "A calm resolved state confirms that a saved vehicle has no outstanding traffic fines.",
+        group: "Civic inquiries",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("secure-banking-login.png"),
+        alt: "Omid Bank Persian RTL secondary banking login with username, password, recovery link, and secure-access illustration",
+        label: "Layered bank access",
+        description: "A second authenticated boundary unlocks protected deposit, card, facility, and customer-management workflows.",
+        group: "Access & profile",
+        theme: "light",
+        emphasis: "feature",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+      {
+        src: pwa("customer-profile.png"),
+        alt: "Omid Bank Persian RTL customer profile form with personal details and province and city selection",
+        label: "Customer profile",
+        description: "Identity details and regional information use familiar mobile controls within the shared product shell.",
+        group: "Access & profile",
+        theme: "light",
+        emphasis: "supporting",
+        device: "mobile",
+        width: 375,
+        height: 812,
+      },
+    ],
+    accent: "coral",
+  },
   {
     slug: "order-management",
     title: "OMS",
@@ -588,25 +862,6 @@ export const projects: Project[] = [
     accent: "teal",
   },
   {
-    slug: "omid-bank",
-    title: "OmidBank PWA",
-    eyebrow: "Fintech · Public product",
-    summary:
-      "A secure mobile-first banking experience spanning daily transactions, credit products, cards, and wallets.",
-    challenge:
-      "Deliver sensitive financial workflows reliably across constrained mobile contexts while keeping server state live and consistent.",
-    solution:
-      "Composable validated forms, secure Axios transport interceptors, resilient SSE synchronization, and focused responsive flows.",
-    achievements: [
-      "Encrypted API transport layer",
-      "Real-time resource synchronization",
-      "PWA and Android web-view delivery",
-    ],
-    tech: ["React", "React Query", "Material UI", "React Hook Form", "Axios"],
-    link: "https://omidbank.ir/app/",
-    accent: "coral",
-  },
-  {
     slug: "enterprise-workspace",
     title: "Enterprise Workspace",
     eyebrow: "Current · Confidential",
@@ -656,6 +911,8 @@ export const projects: Project[] = [
     accent: "coral",
   },
 ];
+
+export const projects = [projectCatalog[1], projectCatalog[2], projectCatalog[0], ...projectCatalog.slice(3)];
 
 export const skillGroups = [
   {

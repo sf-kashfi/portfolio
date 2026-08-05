@@ -65,6 +65,7 @@ function ProductFrame({
 export function ProjectGallery({ project }: { project: Project }) {
   const images = project.images ?? [];
   const gallery = project.gallery ?? omsGallery;
+  const isBanking = project.previewVariant === "banking";
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const activeImage = activeIndex === null ? null : images[activeIndex];
 
@@ -86,12 +87,33 @@ export function ProjectGallery({ project }: { project: Project }) {
           <p>{gallery.intro}</p>
         </div>
 
-        <ProductFrame
-          image={images[0]}
-          priority
-          className="product-frame-hero"
-          onOpen={() => setActiveIndex(0)}
-        />
+        {isBanking ? (
+          <div className="omid-mobile-hero" aria-label="Omid Bank mobile product highlights">
+            <ProductFrame
+              image={images[0]}
+              priority
+              className="omid-mobile-hero-main"
+              onOpen={() => setActiveIndex(0)}
+            />
+            <ProductFrame
+              image={images[1]}
+              className="omid-mobile-hero-left"
+              onOpen={() => setActiveIndex(1)}
+            />
+            <ProductFrame
+              image={images[2]}
+              className="omid-mobile-hero-right"
+              onOpen={() => setActiveIndex(2)}
+            />
+          </div>
+        ) : (
+          <ProductFrame
+            image={images[0]}
+            priority
+            className="product-frame-hero"
+            onOpen={() => setActiveIndex(0)}
+          />
+        )}
 
         <div className="oms-capabilities" aria-label={`Key ${project.title} capabilities`}>
           {gallery.capabilities.map(
@@ -102,7 +124,9 @@ export function ProjectGallery({ project }: { project: Project }) {
         </div>
 
         {gallery.groups.map((group, groupIndex) => {
-          const groupImages = images.filter((image, index) => image.group === group.name && index !== 0);
+          const groupImages = images.filter(
+            (image, index) => image.group === group.name && (isBanking ? index > 2 : index !== 0),
+          );
           const groupId = `group-${group.name.toLowerCase().replaceAll(" ", "-").replaceAll("&", "and")}`;
 
           if (!groupImages.length) return null;

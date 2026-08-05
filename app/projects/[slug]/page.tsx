@@ -73,7 +73,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <section className="case-narrative">
         <div>
           <span>{project.businessOverview ? "Business overview" : "Challenge"}</span>
-          <h2>{project.businessOverview ? "Digitizing the full investor journey." : "Making operational complexity feel manageable."}</h2>
+          <h2>{project.businessOverview ? "Connecting the complete product journey." : "Making operational complexity feel manageable."}</h2>
         </div>
         <p>{project.businessOverview ?? project.challenge}</p>
         <div>
@@ -88,7 +88,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div className="case-engineering-heading">
             <span className="project-eyebrow">Engineering challenges</span>
             <h2 id="engineering-challenges-title">Complexity handled below the interface.</h2>
-            <p>Transaction integrity and eligibility rules stay explicit, while the investor sees a guided, coherent journey.</p>
+            <p>Security, transaction state, and performance constraints stay explicit while customers see a guided, coherent journey.</p>
           </div>
           <div className="case-engineering-grid">
             {project.engineeringChallenges.map((challenge, index) => (
@@ -134,8 +134,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className="oms-final-cta">
           <div>
             <span className="project-eyebrow">Live product</span>
-            <h2>See the trading platform in context.</h2>
-            <p>Visit the live Pasargad Trader application in a new browser tab.</p>
+            <h2>Explore {project.title} in context.</h2>
+            <p>Visit the live product in a new browser tab.</p>
           </div>
           <a
             className="button button-primary"

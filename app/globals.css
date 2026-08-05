@@ -838,6 +838,87 @@ a {
   display: none;
 }
 
+.preview-banking {
+  --bank-device: #111820;
+  --oms-preview-panel: color-mix(in srgb, var(--surface) 91%, #0a73b8);
+  --oms-preview-canvas: color-mix(in srgb, var(--surface-2) 90%, #0876bd);
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, #0b83c9 24%, transparent), transparent 38%),
+    radial-gradient(circle at 87% 88%, color-mix(in srgb, var(--coral) 18%, transparent), transparent 28%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.dark .preview-banking {
+  --bank-device: #03070b;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(16, 132, 197, 0.18), transparent 38%),
+    radial-gradient(circle at 87% 88%, color-mix(in srgb, var(--coral) 11%, transparent), transparent 28%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.preview-banking .oms-preview-header {
+  border-color: color-mix(in srgb, #0b7fc0 24%, var(--line));
+}
+
+.preview-banking .oms-preview-header i {
+  color: #0b7fc0;
+}
+
+.preview-banking .oms-preview-grid {
+  inset: 62px 18px 18px;
+  display: block;
+}
+
+.preview-banking .oms-preview-grid figure {
+  position: absolute;
+  min-height: auto;
+  border: 5px solid var(--bank-device);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow:
+    0 28px 55px rgba(9, 25, 36, 0.3),
+    0 0 0 1px color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.preview-banking .oms-preview-main {
+  inset: 0 auto 0 50%;
+  z-index: 3;
+  width: 31%;
+  transform: translateX(-50%);
+}
+
+.preview-banking .oms-preview-supporting {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.preview-banking .oms-preview-supporting figure {
+  top: 7%;
+  bottom: 7%;
+  width: 28%;
+  opacity: 0.92;
+}
+
+.preview-banking .oms-preview-supporting figure:first-child {
+  left: 8%;
+  transform: rotate(-2.5deg);
+}
+
+.preview-banking .oms-preview-supporting figure:last-child {
+  right: 8%;
+  transform: rotate(2.5deg);
+}
+
+.preview-banking .oms-preview-grid img {
+  object-fit: cover;
+  object-position: center top;
+}
+
+.preview-banking .oms-preview-grid figcaption {
+  display: none;
+}
+
 .oms-preview-header {
   position: absolute;
   inset: 20px 24px auto;
@@ -2084,6 +2165,99 @@ a {
   padding-inline: 18px;
 }
 
+.omid-mobile-hero {
+  position: relative;
+  display: grid;
+  max-width: 1120px;
+  min-height: 760px;
+  margin-inline: auto;
+  padding: 52px 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(11, 127, 192, 0.18), transparent 34%),
+    radial-gradient(circle at 82% 80%, color-mix(in srgb, var(--coral) 15%, transparent), transparent 28%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 88%, #0b7fc0), var(--surface-2));
+}
+
+.dark .omid-mobile-hero {
+  background:
+    radial-gradient(circle at 50% 36%, rgba(11, 127, 192, 0.14), transparent 34%),
+    radial-gradient(circle at 82% 80%, color-mix(in srgb, var(--coral) 9%, transparent), transparent 28%),
+    linear-gradient(145deg, var(--surface-2), color-mix(in srgb, var(--canvas) 90%, #0b7fc0));
+}
+
+.project-showcase-banking .product-frame-mobile {
+  padding: 6px;
+  border-color: color-mix(in srgb, #0b7fc0 22%, var(--line-strong));
+  border-radius: 30px;
+  background: #121820;
+  box-shadow:
+    0 30px 75px rgba(8, 24, 34, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.dark .project-showcase-banking .product-frame-mobile {
+  background: #03070b;
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 255, 255, 0.055);
+}
+
+.project-showcase-banking .product-frame-mobile .product-frame-bar {
+  height: 32px;
+  border: 0;
+  color: rgba(255, 255, 255, 0.72);
+  background: transparent;
+}
+
+.project-showcase-banking .product-frame-mobile .product-frame-bar > i {
+  display: none;
+}
+
+.project-showcase-banking .product-frame-mobile .product-frame-bar small {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.project-showcase-banking .product-frame-mobile .product-frame-image {
+  border-radius: 0 0 22px 22px;
+  background: #fff;
+}
+
+.omid-mobile-hero-main {
+  z-index: 2;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.omid-mobile-hero-left {
+  grid-column: 1;
+  grid-row: 1;
+  transform: rotate(-2.5deg) scale(0.9);
+}
+
+.omid-mobile-hero-right {
+  grid-column: 3;
+  grid-row: 1;
+  transform: rotate(2.5deg) scale(0.9);
+}
+
+.omid-mobile-hero-main:hover {
+  transform: translateY(-5px);
+}
+
+.omid-mobile-hero-left:hover {
+  transform: translateY(-5px) rotate(-2.5deg) scale(0.9);
+}
+
+.omid-mobile-hero-right:hover {
+  transform: translateY(-5px) rotate(2.5deg) scale(0.9);
+}
+
 .oms-capabilities {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -2173,12 +2347,33 @@ a {
   box-shadow: 0 28px 80px rgba(25, 36, 34, 0.14);
 }
 
+.project-showcase-banking .oms-gallery-mobile {
+  grid-column: span 3;
+}
+
+.project-showcase-banking .oms-gallery-feature {
+  grid-column: span 6;
+}
+
+.project-showcase-banking .oms-gallery-mobile .product-frame {
+  max-width: 350px;
+  margin-inline: auto;
+}
+
+.project-showcase-banking .oms-gallery-feature .product-frame {
+  max-width: 390px;
+}
+
 .dark .project-showcase-investor .oms-gallery-mobile .product-frame {
   box-shadow: 0 32px 90px rgba(0, 0, 0, 0.48);
 }
 
 .oms-gallery-grid > .oms-gallery-feature:first-child {
   grid-column: 1 / -1;
+}
+
+.project-showcase-banking .oms-gallery-grid > .oms-gallery-feature:first-child {
+  grid-column: span 6;
 }
 
 .oms-gallery-caption {
@@ -2747,6 +2942,17 @@ a {
     grid-column: span 6;
   }
 
+  .omid-mobile-hero {
+    min-height: 650px;
+    padding-inline: 16px;
+    gap: 12px;
+  }
+
+  .project-showcase-banking .oms-gallery-mobile,
+  .project-showcase-banking .oms-gallery-feature {
+    grid-column: span 6;
+  }
+
   .case-technology-groups {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2914,6 +3120,46 @@ a {
     right: 44%;
   }
 
+  .project-1 .preview-banking {
+    min-height: 390px;
+  }
+
+  .preview-banking .oms-preview-grid {
+    inset: 55px 10px 12px;
+    display: block;
+  }
+
+  .preview-banking .oms-preview-grid figure {
+    border-width: 3px;
+    border-radius: 17px;
+  }
+
+  .preview-banking .oms-preview-main {
+    inset: 0 auto 0 50%;
+    width: 43%;
+  }
+
+  .preview-banking .oms-preview-supporting {
+    inset: 0;
+    width: auto;
+  }
+
+  .preview-banking .oms-preview-supporting figure {
+    top: 11%;
+    bottom: 11%;
+    width: 36%;
+    opacity: 0.78;
+  }
+
+  .preview-banking .oms-preview-supporting figure:first-child {
+    right: auto;
+    left: 0;
+  }
+
+  .preview-banking .oms-preview-supporting figure:last-child {
+    right: 0;
+  }
+
   .oms-preview-supporting {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: 1fr;
@@ -2996,6 +3242,43 @@ a {
 
   .project-showcase-investor .oms-gallery-mobile {
     grid-column: 1 / -1;
+  }
+
+  .omid-mobile-hero {
+    display: flex;
+    min-height: auto;
+    margin-inline: -12px;
+    padding: 30px 18px;
+    gap: 16px;
+    overflow-x: auto;
+    border-radius: 20px;
+    scroll-padding-inline: 18px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .omid-mobile-hero::-webkit-scrollbar {
+    display: none;
+  }
+
+  .omid-mobile-hero .product-frame {
+    flex: 0 0 min(78vw, 300px);
+    transform: none;
+    scroll-snap-align: center;
+  }
+
+  .omid-mobile-hero .product-frame:hover {
+    transform: translateY(-5px);
+  }
+
+  .project-showcase-banking .oms-gallery-mobile,
+  .project-showcase-banking .oms-gallery-feature {
+    grid-column: 1 / -1;
+  }
+
+  .project-showcase-banking .oms-gallery-mobile .product-frame,
+  .project-showcase-banking .oms-gallery-feature .product-frame {
+    max-width: 300px;
   }
 
   .project-showcase-investor .oms-gallery-mobile .product-frame {
