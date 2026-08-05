@@ -472,7 +472,7 @@ export function Portfolio() {
             copy="Selected enterprise products and platforms I've designed and built. Explore each case study for the product challenge, engineering approach, stack, and measurable outcomes."
           />
           <div className="projects-grid">
-            {projects.slice(0, 3).map((project, index) => (
+            {projects.slice(0, 4).map((project, index) => (
               <Reveal key={project.slug} delay={index * 0.08} className={`project-card project-${index + 1}`}>
                 <ProjectPreview project={project} />
                 <div className="project-copy">
@@ -489,9 +489,9 @@ export function Portfolio() {
             ))}
           </div>
           <Reveal className="project-archive">
-            <div><span>More product work</span><h3>Enterprise, investment & communication systems</h3></div>
+            <div><span>More product work</span><h3>Enterprise workspace & investment systems</h3></div>
             <div className="archive-links">
-              {projects.slice(3).map((project) => <ProjectDialog key={project.slug} project={project} />)}
+              {projects.slice(4).map((project) => <ProjectDialog key={project.slug} project={project} />)}
             </div>
           </Reveal>
         </section>

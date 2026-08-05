@@ -681,6 +681,26 @@ a {
   grid-column: span 5;
 }
 
+.project-4 {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 0.62fr 1.38fr;
+}
+
+.project-4 .project-preview {
+  order: 2;
+  min-height: 500px;
+  border-bottom: 0;
+  border-left: 1px solid var(--line);
+}
+
+.project-4 .project-copy {
+  display: flex;
+  padding: 42px;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .project-1 .project-preview {
   min-height: 560px;
   border-right: 1px solid var(--line);
@@ -917,6 +937,41 @@ a {
 
 .preview-banking .oms-preview-grid figcaption {
   display: none;
+}
+
+.preview-messaging {
+  --oms-preview-panel: color-mix(in srgb, var(--surface) 91%, #2444ba);
+  --oms-preview-canvas: color-mix(in srgb, var(--surface-2) 90%, #2444ba);
+  background:
+    radial-gradient(circle at 78% 18%, rgba(36, 68, 186, 0.2), transparent 38%),
+    radial-gradient(circle at 10% 88%, color-mix(in srgb, var(--coral) 13%, transparent), transparent 28%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.dark .preview-messaging {
+  --oms-preview-panel: color-mix(in srgb, var(--surface-2) 88%, #2444ba);
+  --oms-preview-canvas: color-mix(in srgb, var(--canvas) 84%, #2444ba);
+  background:
+    radial-gradient(circle at 78% 18%, rgba(63, 92, 206, 0.16), transparent 38%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.light .preview-messaging {
+  --oms-preview-panel: color-mix(in srgb, var(--surface) 91%, #2444ba);
+  --oms-preview-canvas: color-mix(in srgb, var(--surface-2) 90%, #2444ba);
+  border-bottom-color: color-mix(in srgb, #2444ba 18%, var(--line-strong));
+  background:
+    radial-gradient(circle at 78% 18%, rgba(36, 68, 186, 0.16), transparent 38%),
+    radial-gradient(circle at 10% 88%, color-mix(in srgb, var(--coral) 12%, transparent), transparent 28%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.preview-messaging .oms-preview-header {
+  border-color: color-mix(in srgb, #2444ba 24%, var(--line));
+}
+
+.preview-messaging .oms-preview-header i {
+  color: #4967dc;
 }
 
 .oms-preview-header {
@@ -2649,6 +2704,11 @@ a {
     var(--surface);
 }
 
+.case-engineering-grid article:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  min-height: 170px;
+}
+
 .case-engineering-grid article > span {
   color: var(--primary);
   font-family: var(--font-geist-mono), monospace;
@@ -2769,6 +2829,10 @@ a {
     grid-template-columns: 1.1fr 0.9fr;
   }
 
+  .project-4 {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+
   .project-1 .project-copy {
     padding: 32px;
   }
@@ -2863,18 +2927,26 @@ a {
     grid-column: 1;
   }
 
-  .project-1 {
+  .project-1,
+  .project-4 {
     display: block;
   }
 
   .project-2,
-  .project-3 {
+  .project-3,
+  .project-4 {
     grid-column: 1 / -1;
   }
 
   .project-1 .project-preview {
     min-height: 430px;
     border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .project-4 .project-preview {
+    min-height: 430px;
+    border-left: 0;
     border-bottom: 1px solid var(--line);
   }
 
@@ -3071,13 +3143,15 @@ a {
   }
 
   .project-card,
-  .project-1 {
+  .project-1,
+  .project-4 {
     grid-column: auto;
     border-radius: 20px;
   }
 
   .project-preview,
-  .project-1 .project-preview {
+  .project-1 .project-preview,
+  .project-4 .project-preview {
     min-height: 330px;
   }
 
@@ -3171,7 +3245,8 @@ a {
   }
 
   .project-copy,
-  .project-1 .project-copy {
+  .project-1 .project-copy,
+  .project-4 .project-copy {
     padding: 24px;
   }
 

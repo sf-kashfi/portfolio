@@ -87,8 +87,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className="case-engineering" aria-labelledby="engineering-challenges-title">
           <div className="case-engineering-heading">
             <span className="project-eyebrow">Engineering challenges</span>
-            <h2 id="engineering-challenges-title">Complexity handled below the interface.</h2>
-            <p>Security, transaction state, and performance constraints stay explicit while customers see a guided, coherent journey.</p>
+            <h2 id="engineering-challenges-title">{project.engineeringHeading ?? "Complexity handled below the interface."}</h2>
+            <p>{project.engineeringIntro ?? "Security, transaction state, and performance constraints stay explicit while customers see a guided, coherent journey."}</p>
           </div>
           <div className="case-engineering-grid">
             {project.engineeringChallenges.map((challenge, index) => (
@@ -117,7 +117,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className="case-technology" aria-labelledby="technology-title">
           <div>
             <span className="project-eyebrow">Technology system</span>
-            <h2 id="technology-title">Purpose-built for regulated, data-heavy RTL workflows.</h2>
+            <h2 id="technology-title">{project.technologyHeading ?? "Purpose-built for regulated, data-heavy RTL workflows."}</h2>
           </div>
           <div className="case-technology-groups">
             {project.stackGroups.map((group) => (

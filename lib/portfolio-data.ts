@@ -28,10 +28,13 @@ export type Project = {
   lightPreviewImages?: ProjectPreviewImage[];
   previewLabel?: string;
   previewStatus?: string;
-  previewVariant?: "trading" | "investor" | "banking";
+  previewVariant?: "trading" | "investor" | "banking" | "messaging";
   businessOverview?: string;
   technicalOverview?: string;
   engineeringChallenges?: string[];
+  engineeringHeading?: string;
+  engineeringIntro?: string;
+  technologyHeading?: string;
   stackGroups?: { label: string; items: string[] }[];
   gallery?: {
     eyebrow: string;
@@ -46,6 +49,7 @@ export type Project = {
 const oms = (file: string) => `/images/projects/oms/${file}`;
 const atom = (file: string) => `/images/projects/attom/${file}`;
 const pwa = (file: string) => `/images/projects/pwa/${file}`;
+const sms = (file: string) => `/images/projects/sms/${file}`;
 
 export const profile = {
   name: "Fatemeh Kashfi",
@@ -897,22 +901,145 @@ const projectCatalog: Project[] = [
   },
   {
     slug: "sms-platform",
-    title: "SMS Delivery Platform",
-    eyebrow: "Communications",
+    title: "SMS Sender",
+    eyebrow: "Capital markets · Operations console",
     summary:
-      "A web-based system for composing, managing, and delivering operational SMS communications.",
+      "Role-based console for capital-market SMS, event templates, and approval workflows.",
     challenge:
-      "Make bulk messaging workflows clear while maintaining reliable backend delivery feedback.",
+      "Replace ad-hoc messaging with a controlled operational workflow that serves admins, support teams, and brokers while keeping market communications targeted, reviewable, and traceable.",
     solution:
-      "A focused React interface with predictable Redux state and React Query server synchronization.",
-    achievements: ["Streamlined message delivery", "Backend status integration", "Reusable operational UI"],
-    tech: ["React", "Redux", "React Query", "Core UI"],
-    link: "https://fatemehkashfi.crevado.com/sms-sending-system",
+      "A role-aware React console that unifies recipient sources, Jalali scheduling, parameterized templates, drafts, approvals, interest rules, archives, reporting, and Excel workflows.",
+    achievements: [
+      "Manual, Excel, and phonebook recipient flows",
+      "Parameterized market-event campaigns",
+      "Role-gated drafts and approval queues",
+      "Auditable archives, logs, and reports",
+    ],
+    tech: ["React", "Redux Toolkit", "React Query", "Material UI", "React Hook Form", "CoreUI", "Axios", "Jest"],
+    previewLabel: "DATX / MARKET NOTIFIER UI",
+    previewStatus: "RTL · ROLE-BASED",
+    previewVariant: "messaging",
+    businessOverview:
+      "SMS Sender helps capital-market operations teams notify customers about market events, instrument stops, and custom campaigns without relying on ad-hoc messaging tools. Users compose SMS from manual numbers, Excel uploads, or an in-app phonebook, then send immediately or on Jalali-based schedules. Brokers and admins define market-event and stop-instrument campaigns with parameterized templates, keep unfinished work as drafts, and review pending requests before they go live. Contact teams manage customer lists and white/black-list interests so messages reach the right audience. Archives, system event logs, and date-range statistical reports provide visibility into what was sent and when, while role-based navigation keeps each user focused on permitted workflows.",
+    technicalOverview:
+      "The product uses React with HashRouter and lazy-loaded routes, a CoreUI application shell, and Material UI for dense forms, dialogs, and tables. Emotion provides the RTL style cache, while Redux Toolkit coordinates roles, drafts, pending-request badges, sidebar behavior, and selected market-event context. Fetch, Axios, and React Query support data access; React Hook Form structures validation-heavy workflows; and Jalali date tools, Excel export libraries, and a custom TypeScript formula DSL support scheduling, reporting, template rules, and customer-interest settings.",
+    engineeringChallenges: [
+      "Formula settings: tokenize, parse, and serialize an AST so volume, value, and timing rules remain editable while staying compatible with API contracts.",
+      "Role gating: translate permission subjects into Redux roles, route allowlists, role-specific navigation, and live operational badges.",
+      "Multi-mode SMS: normalize manual, Excel, and phonebook recipients plus Jalali scheduling modes into one predictable send flow.",
+      "RTL data grids: reuse sorting, pagination, loading skeletons, date filters, and Excel export patterns across archives and reports.",
+      "Queue visibility: refresh draft and pending-request counts on application boot and tab focus so sidebar badges remain trustworthy.",
+    ],
+    engineeringHeading: "Operational complexity resolved before send.",
+    engineeringIntro:
+      "Recipient normalization, formula parsing, permission boundaries, and queue synchronization protect the workflows behind a deceptively simple message action.",
+    technologyHeading: "Built for dense, permission-aware RTL operations.",
+    stackGroups: [
+      { label: "Core", items: ["React", "React Router", "HashRouter", "Lazy-loaded routes"] },
+      { label: "State", items: ["Redux Toolkit", "React Redux", "React Query"] },
+      { label: "Data & forms", items: ["Fetch", "Axios", "React Hook Form", "Custom validation", "react-number-format"] },
+      { label: "UI & RTL", items: ["Material UI", "CoreUI", "Emotion", "stylis-plugin-rtl", "Sass"] },
+      { label: "Dates & tables", items: ["MUI Table", "Pagination", "Skeleton", "react-multi-date-picker", "jalali-moment"] },
+      { label: "Export & quality", items: ["sheetjs-style", "xlsx", "file-saver", "Jest", "Docker", "Nginx"] },
+    ],
+    gallery: {
+      eyebrow: "Operations walkthrough",
+      title: "From market signal to governed communication.",
+      intro:
+        "The selected screens prioritize operational breadth and credibility: composing across recipient sources, managing market-event records, editing parameterized templates, reviewing requests, and targeting customers through explicit interest rules.",
+      capabilities: ["Multi-mode send", "Jalali scheduling", "Event templates", "Draft queues", "Approvals", "Audience rules", "Reporting"],
+      groups: [
+        { name: "Campaign delivery", description: "A single composition surface normalizes recipient entry and scheduled delivery without hiding operational constraints." },
+        { name: "Market operations", description: "Event archives and reusable templates connect market context, instrument data, timing, and message content." },
+        { name: "Governance & visibility", description: "Status-rich queues make broker requests, review ownership, and approval outcomes easy to audit." },
+        { name: "Audience management", description: "Customer, instrument, and event interests create explicit targeting rules instead of relying on disconnected contact files." },
+      ],
+    },
+    images: [
+      {
+        src: sms("17500582_xxl-1.png"),
+        alt: "SMS Sender Persian RTL message composer with text entry, manual, Excel, and phonebook recipient modes, scheduling controls, and role-based navigation",
+        label: "Multi-mode SMS composer",
+        description: "Manual entry, Excel import, and phonebook recipients converge in one send flow with immediate and Jalali-scheduled delivery.",
+        group: "Campaign delivery",
+        theme: "light",
+        emphasis: "hero",
+        device: "desktop",
+        width: 1600,
+        height: 805,
+      },
+      {
+        src: sms("17500586_xxl-1.png"),
+        alt: "SMS Sender Persian RTL market-event archive with filters, Excel export, status badges, pagination, and a populated event table",
+        label: "Market-event archive",
+        description: "Search, export, status, and date controls keep thousands of instrument-linked event communications traceable.",
+        group: "Market operations",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1600,
+        height: 805,
+      },
+      {
+        src: sms("17544170_xxl-1.png"),
+        alt: "SMS Sender Persian RTL template editor dialog with delivery time, volume and value rules, message body, and an open event-parameter selector",
+        label: "Parameterized templates",
+        description: "Operators combine editable message copy with event fields, minimum thresholds, expiry, and daily delivery timing.",
+        group: "Market operations",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1600,
+        height: 833,
+      },
+      {
+        src: sms("Screenshot (186).png"),
+        alt: "SMS Sender Persian RTL approval-request queue showing requester, approver, request details, status badges, and review timestamps",
+        label: "Approval queue",
+        description: "Suspended broker requests expose ownership, timing, campaign detail, and approval state in a compact review surface.",
+        group: "Governance & visibility",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1343,
+        height: 649,
+      },
+      {
+        src: sms("17544198_xxl-1.png"),
+        alt: "SMS Sender Persian RTL customer-interest editor linking selected contacts, market instruments, and notification events",
+        label: "Customer interest editor",
+        description: "Contact, instrument, and event selections make audience targeting explicit and editable before campaigns are sent.",
+        group: "Audience management",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1600,
+        height: 803,
+      },
+      {
+        src: sms("Screenshot (244).png"),
+        alt: "SMS Sender Persian RTL grouped interest-list settings with customers expanded into instrument and event rules",
+        label: "Interest-rule overview",
+        description: "Expandable customer groups reveal detailed instrument and event subscriptions, including excluded rules and editable list states.",
+        group: "Audience management",
+        theme: "light",
+        emphasis: "supporting",
+        device: "desktop",
+        width: 1872,
+        height: 960,
+      },
+    ],
     accent: "coral",
   },
 ];
 
-export const projects = [projectCatalog[1], projectCatalog[2], projectCatalog[0], ...projectCatalog.slice(3)];
+export const projects = [
+  projectCatalog[1],
+  projectCatalog[2],
+  projectCatalog[0],
+  projectCatalog[5],
+  ...projectCatalog.slice(3, 5),
+];
 
 export const skillGroups = [
   {
