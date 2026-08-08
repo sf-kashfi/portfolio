@@ -974,6 +974,42 @@ a {
   color: #4967dc;
 }
 
+.preview-workspace {
+  --oms-preview-panel: color-mix(in srgb, var(--surface) 91%, #7c3aed);
+  --oms-preview-canvas: color-mix(in srgb, var(--surface-2) 90%, #2563eb);
+  background:
+    radial-gradient(circle at 78% 16%, rgba(124, 58, 237, 0.2), transparent 38%),
+    radial-gradient(circle at 12% 90%, rgba(37, 99, 235, 0.14), transparent 30%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.dark .preview-workspace {
+  --oms-preview-panel: color-mix(in srgb, var(--surface-2) 88%, #6d28d9);
+  --oms-preview-canvas: color-mix(in srgb, var(--canvas) 84%, #1d4ed8);
+  background:
+    radial-gradient(circle at 78% 16%, rgba(139, 92, 246, 0.16), transparent 38%),
+    radial-gradient(circle at 12% 90%, rgba(59, 130, 246, 0.1), transparent 30%),
+    linear-gradient(145deg, var(--oms-preview-panel), var(--oms-preview-canvas) 76%);
+}
+
+.preview-workspace .oms-preview-header {
+  border-color: color-mix(in srgb, #7c3aed 24%, var(--line));
+}
+
+.preview-workspace .oms-preview-header i {
+  color: #8b5cf6;
+}
+
+.preview-workspace .oms-preview-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1.55fr) minmax(92px, 0.65fr);
+}
+
+.preview-workspace .oms-preview-supporting {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+}
+
 .oms-preview-header {
   position: absolute;
   inset: 20px 24px auto;

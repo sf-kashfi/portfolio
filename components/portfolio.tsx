@@ -478,7 +478,6 @@ export function Portfolio() {
                 <div className="project-copy">
                   <div className="project-label-row">
                     <span className="project-eyebrow">{project.eyebrow}</span>
-                    {project.confidential && <span className="confidential">Confidential</span>}
                   </div>
                   <h3>{project.title}</h3>
                   <p>{project.summary}</p>
@@ -489,7 +488,7 @@ export function Portfolio() {
             ))}
           </div>
           <Reveal className="project-archive">
-            <div><span>More product work</span><h3>Enterprise workspace & investment systems</h3></div>
+            <div><span>SMS Sender</span><h3>Targeted messaging & campaign operations</h3></div>
             <div className="archive-links">
               {projects.slice(4).map((project) => <ProjectDialog key={project.slug} project={project} />)}
             </div>

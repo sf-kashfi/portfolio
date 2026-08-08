@@ -28,7 +28,7 @@ export type Project = {
   lightPreviewImages?: ProjectPreviewImage[];
   previewLabel?: string;
   previewStatus?: string;
-  previewVariant?: "trading" | "investor" | "banking" | "messaging";
+  previewVariant?: "trading" | "investor" | "banking" | "messaging" | "workspace";
   businessOverview?: string;
   technicalOverview?: string;
   engineeringChallenges?: string[];
@@ -50,6 +50,7 @@ const oms = (file: string) => `/images/projects/oms/${file}`;
 const atom = (file: string) => `/images/projects/attom/${file}`;
 const pwa = (file: string) => `/images/projects/pwa/${file}`;
 const sms = (file: string) => `/images/projects/sms/${file}`;
+const workDesk = (file: string) => `/images/projects/wd/${file}`;
 
 export const profile = {
   name: "Fatemeh Kashfi",
@@ -867,44 +868,191 @@ const projectCatalog: Project[] = [
   },
   {
     slug: "enterprise-workspace",
-    title: "Enterprise Workspace",
-    eyebrow: "Current · Confidential",
+    title: "Work Desk",
+    eyebrow: "Multi-Window Enterprise Workspace",
     summary:
-      "A browser-based operating environment that brings 30+ enterprise applications into one coherent, desktop-like workspace.",
+      "A browser-based operating environment that brings 30+ enterprise applications into one coherent, desktop-like workspace for operational teams.",
     challenge:
-      "Independent operational tools needed to coexist without sacrificing performance, permission safety, or usability at highly variable window sizes.",
+      "Modernize a fragmented operational environment so independent tools, dense workflows, and permission-sensitive data can coexist without sacrificing performance or usability at highly variable window sizes.",
     solution:
-      "A typed modular shell with imperative dragging, portal-aware overlay management, container queries, domain services, and shared data primitives.",
+      "A typed modular shell with draggable and resizable application windows, portal-aware stacking, container-query layouts, domain-focused services, and shared workflow primitives.",
     achievements: [
-      "30+ hosted applications",
-      "12+ domain-scoped modules",
+      "30+ applications in one workspace shell",
+      "12+ domain-scoped TypeScript modules",
+      "Permission-aware meetings and task workflows",
       "Full meeting lifecycle E2E coverage",
     ],
-    tech: ["React", "TypeScript", "React Query", "Playwright", "Container Queries"],
+    tech: ["Next.js", "TypeScript", "Shadcn/ui", "Playwright", "TanStack Query", "React Hook Form", "Recharts", "TanStack Table", "Tailwind CSS"],
     confidential: true,
-    accent: "teal",
-  },
-  {
-    slug: "investment-funds",
-    title: "Investment Fund System",
-    eyebrow: "Capital markets",
-    summary:
-      "A fund discovery and management product for investors, financial advisors, and fund managers.",
-    challenge:
-      "Present comparable investment information and transaction paths without overwhelming users.",
-    solution:
-      "A responsive information architecture with React Query-backed data and reusable Core UI and Material UI patterns.",
-    achievements: ["Fund exploration and comparison", "Role-aware workflows", "Responsive product UI"],
-    tech: ["React", "Redux", "React Query", "Core UI", "Material UI"],
-    link: "https://fatemehkashfi.crevado.com/investment-fund-system",
+    previewLabel: "WORK DESK / OPERATIONS OS",
+    previewStatus: "RTL · MULTI-WINDOW",
+    previewVariant: "workspace",
+    businessOverview:
+      "Work Desk gives operational teams one browser-based environment for the systems they use throughout the day. A desktop-style shell keeps dashboards, meetings, task management, work reports, notifications, organization tools, and supporting applications available without forcing users through disconnected products. Teams can schedule meetings, coordinate attendees and agendas, capture minutes and follow-up actions, manage work in table or Kanban views, monitor progress, and move between multiple open applications while retaining context.",
+    technicalOverview:
+      "The React and TypeScript frontend is organized as a shared workspace shell plus 12+ domain-scoped modules. A custom window manager supports dragging, resizing, focus, minimization, and taskbar restoration, while portal-aware stacking keeps menus, dialogs, and popovers attached to the correct window. Container queries let each application respond to its own dimensions rather than only the browser viewport. TanStack Query and typed services isolate server state by domain; React Hook Form structures long operational forms; and reusable data-grid, calendar, export, permission, and workflow primitives keep behavior consistent across meetings, tasks, files, work logs, and analytics. Playwright covers the meeting lifecycle from scheduling through minutes and follow-up work.",
+    engineeringChallenges: [
+      "Desktop behavior in a browser: coordinate drag, resize, focus, minimize, maximize, and taskbar state across many simultaneous application instances.",
+      "Portal-aware stacking: keep dialogs, menus, date pickers, and other overlays visually attached to the correct window as focus and z-index change.",
+      "Window-local responsiveness: use container queries so dense tables, forms, and calendars adapt to the space assigned to each app instead of the viewport alone.",
+      "Cross-domain workflows: connect meetings, minutes, approvals, and resulting tasks while preserving typed boundaries between independently evolving modules.",
+      "Permission-sensitive operations: expose actions and records according to organizational roles without fragmenting shared navigation and workflow components.",
+    ],
+    engineeringHeading: "A desktop interaction model, engineered for the web.",
+    engineeringIntro:
+      "Window orchestration, overlay ownership, local responsiveness, and cross-module state all have to stay predictable before the individual applications can feel simple.",
+    technologyHeading: "A modular platform for dense operational workflows.",
+    stackGroups: [
+      { label: "Core", items: ["Next.js App Router", "React", "TypeScript", "Modular application shell"] },
+      { label: "Workspace", items: ["Custom window manager", "Portal-aware stacking", "Container Queries", "Taskbar state"] },
+      { label: "Data & forms", items: ["TanStack Query", "Typed services", "React Hook Form","Zod", "Domain validation"] },
+      { label: "UI & RTL", items: ["Shadcn/ui", "TanStack Table", "Tailwind CSS", "Recharts"] },
+      { label: "Operations", items: ["Kanban", "Meeting workflows", "Excel export", "Analytics reporting"] },
+      { label: "Quality", items: ["Playwright", "Lifecycle E2E coverage", "Permission scenarios"] },
+    ],
+    gallery: {
+      eyebrow: "Workspace walkthrough",
+      title: "Many operational systems. One continuous workspace.",
+      intro:
+        "The selected screens show the platform at three levels: the multi-window shell that preserves context, complete meeting-to-action workflows, and dense task surfaces that support both execution and reporting.",
+      capabilities: ["Multi-window shell", "Meetings", "Minutes", "Follow-up actions", "Task grids", "Kanban", "Reporting"],
+      groups: [
+        { name: "Workspace orchestration", description: "Independent applications remain movable, resizable, theme-aware, and accessible from a persistent shell and taskbar." },
+        { name: "Meeting lifecycle", description: "Scheduling, participants, agendas, minutes, attendance, agreements, and follow-up actions stay connected from one meeting record." },
+        { name: "Task execution", description: "Creation, ownership, priority, progress, approval, and status are available through focused forms, dense grids, and Kanban lanes." },
+        { name: "Operational reporting", description: "Filters, summaries, timelines, export, and capacity views turn daily work into an inspectable management surface." },
+      ],
+    },
+    images: [
+      {
+        src: workDesk("Screenshot 2026-07-29 090511.png"),
+        alt: "Work Desk Persian RTL desktop with meeting registration, calendar, clock, notes, team metrics, chart, sidebar, and application taskbar",
+        label: "Multi-window workspace",
+        description: "Resizable applications share a persistent desktop, navigation rail, and taskbar while each panel preserves its own responsive layout.",
+        group: "Workspace orchestration",
+        theme: "light",
+        emphasis: "hero",
+        device: "desktop",
+        width: 1913,
+        height: 909,
+      },
+      {
+        src: workDesk("Screenshot 2026-07-29 090400.png"),
+        alt: "Work Desk dark-theme Persian RTL desktop with task creation, calendar, clock, notes, team metrics, and progress chart",
+        label: "Theme-aware desktop",
+        description: "The complete workspace and its hosted applications retain hierarchy and contrast in a coordinated dark theme.",
+        group: "Workspace orchestration",
+        theme: "dark",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1915,
+        height: 903,
+      },
+      {
+        src: workDesk("Screenshot 2026-07-28 200909.png"),
+        alt: "Work Desk Persian RTL desktop with meeting form, calendar, agenda list, notes, and multiple simultaneous application windows",
+        label: "Context-preserving windows",
+        description: "Related tools can remain open together, reducing navigation loss across scheduling, reference, and note-taking tasks.",
+        group: "Workspace orchestration",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1914,
+        height: 907,
+      },
+      {
+        src: workDesk("Screenshot 2026-07-28 165612.png"),
+        alt: "Work Desk Persian RTL meeting details and archive windows with participants, attendees, agenda items, and record actions",
+        label: "Meeting coordination",
+        description: "Participant roles, attendees, location, timing, agenda, and archive actions stay visible across linked meeting windows.",
+        group: "Meeting lifecycle",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1909,
+        height: 910,
+      },
+      {
+        src: workDesk("Screenshot 2026-08-06 170447.png"),
+        alt: "Work Desk Persian RTL meeting-minutes editor with agenda navigation, agreement text, follow-up action fields, preview, and final submission",
+        label: "Minutes & agreements",
+        description: "Agenda-led minutes connect agreements to responsible owners and deadlines before review and final submission.",
+        group: "Meeting lifecycle",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1913,
+        height: 906,
+      },
+      {
+        src: workDesk("Screenshot 2026-08-06 170936.png"),
+        alt: "Work Desk Persian RTL meeting attendance form beside task creation with owners, approvers, and informed participants",
+        label: "Meeting-to-task handoff",
+        description: "Attendance outcomes and meeting decisions can move directly into owned, approved, and observable follow-up work.",
+        group: "Meeting lifecycle",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1914,
+        height: 913,
+      },
+      {
+        src: workDesk("Screenshot 2026-08-06 170109.png"),
+        alt: "Work Desk Persian RTL task creation window with title, description, priority, dates, progress calculation, labels, owners, approvers, and observers",
+        label: "Structured task creation",
+        description: "A large adaptive form keeps scheduling, priority, ownership, approval, and visibility rules understandable in one task definition.",
+        group: "Task execution",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1913,
+        height: 910,
+      },
+      {
+        src: workDesk("Screenshot 2026-07-28 194805.png"),
+        alt: "Work Desk Persian RTL Kanban board with new, in-progress, awaiting-approval, revision, completed, and canceled task lanes",
+        label: "Permission-aware Kanban",
+        description: "Lifecycle lanes make current work and approval states scannable while retaining role and priority filters.",
+        group: "Task execution",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1864,
+        height: 901,
+      },
+      {
+        src: workDesk("Screenshot 2026-07-29 120208.png"),
+        alt: "Work Desk Persian RTL task-management grid with search, configurable columns, statuses, priorities, progress, deadlines, and row actions",
+        label: "Operational task grid",
+        description: "A dense configurable table supports scanning, filtering, and acting across ownership, progress, approval, and timing data.",
+        group: "Task execution",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1908,
+        height: 908,
+      },
+      {
+        src: workDesk("Screenshot 2026-07-28 200052.png"),
+        alt: "Work Desk Persian RTL work-monitoring report with date and employee filters, status summaries, progress metrics, export, and detailed task table",
+        label: "Work monitoring report",
+        description: "Date and team filters, status summaries, progress indicators, and Excel export turn execution data into an auditable report.",
+        group: "Operational reporting",
+        theme: "light",
+        emphasis: "feature",
+        device: "desktop",
+        width: 1702,
+        height: 845,
+      },
+    ],
     accent: "teal",
   },
   {
     slug: "sms-platform",
     title: "SMS Sender",
-    eyebrow: "Capital markets · Operations console",
+    eyebrow: "Messaging · Campaign management",
     summary:
-      "Role-based console for capital-market SMS, event templates, and approval workflows.",
+      "Role-based console for capital-market SMS, event templates, composing, scheduling, approving, and tracking targeted messages.",
     challenge:
       "Replace ad-hoc messaging with a controlled operational workflow that serves admins, support teams, and brokers while keeping market communications targeted, reviewable, and traceable.",
     solution:
@@ -916,7 +1064,7 @@ const projectCatalog: Project[] = [
       "Auditable archives, logs, and reports",
     ],
     tech: ["React", "Redux Toolkit", "React Query", "Material UI", "React Hook Form", "CoreUI", "Axios", "Jest"],
-    previewLabel: "DATX / MARKET NOTIFIER UI",
+    previewLabel: "SMS SENDER / MARKET NOTIFIER UI",
     previewStatus: "RTL · ROLE-BASED",
     previewVariant: "messaging",
     businessOverview:
@@ -1034,11 +1182,11 @@ const projectCatalog: Project[] = [
 ];
 
 export const projects = [
+  projectCatalog[3],
   projectCatalog[1],
   projectCatalog[2],
   projectCatalog[0],
-  projectCatalog[5],
-  ...projectCatalog.slice(3, 5),
+  projectCatalog[4],
 ];
 
 export const skillGroups = [
