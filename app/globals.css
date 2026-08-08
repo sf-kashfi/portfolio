@@ -1692,34 +1692,237 @@ a {
   margin-top: 22px;
 }
 
-.testimonial-section {
-  padding-block: clamp(80px, 9vw, 130px);
-  text-align: center;
+.references-section {
+  padding-block: clamp(52px, 6vw, 80px);
 }
 
-.testimonial-section > div {
-  padding: 70px 10%;
+.references-heading {
+  display: grid;
+  margin-bottom: clamp(28px, 3vw, 40px);
+  grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px 36px;
+}
+
+.references-heading h2 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(2rem, 3.2vw, 3.35rem);
+  font-weight: 620;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+}
+
+.references-heading > p {
+  max-width: 600px;
+  margin: 0;
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.references-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.reference-card {
+  min-width: 0;
+}
+
+.reference-card article {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 100%;
+  padding: clamp(18px, 1.7vw, 24px);
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 18px;
   background: var(--surface);
+  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease;
 }
 
-.testimonial-section .section-kicker {
-  justify-content: center;
+
+.reference-card article:hover {
+  border-color: var(--line-strong);
+  background-color: color-mix(in srgb, var(--surface) 94%, var(--primary) 6%);
+  transform: translateY(-2px);
 }
 
-.testimonial-section blockquote {
-  max-width: 900px;
-  margin: 34px auto 20px;
-  font-size: clamp(2rem, 4vw, 4rem);
-  font-weight: 560;
-  letter-spacing: -0.05em;
-  line-height: 1.1;
+.reference-author {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
 }
 
-.testimonial-section p {
+.reference-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--primary) 26%, var(--line));
+  border-radius: 11px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.reference-identity {
+  min-width: 0;
+}
+
+.reference-identity a {
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.reference-identity h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  transition: color 160ms ease;
+}
+
+.reference-identity a:hover h3 {
+  color: var(--primary);
+}
+
+.reference-identity p {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reference-linkedin {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.reference-linkedin:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.reference-meta {
+  display: flex;
+  margin-top: 16px;
+  padding-top: 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--subtle);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.reference-meta span {
+  color: var(--primary);
+}
+
+.reference-meta time {
+  white-space: nowrap;
+}
+
+.reference-card blockquote {
+  margin: 18px 0 20px;
+}
+
+.reference-card blockquote p {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(0.92rem, 1vw, 1rem);
+  letter-spacing: -0.012em;
+  line-height: 1.6;
+}
+
+.reference-card blockquote p + p {
+  margin-top: 14px;
+}
+
+
+.reference-relationship {
+  display: flex;
+  margin-top: auto;
+  padding-top: 12px;
+  align-items: flex-start;
+  gap: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.reference-relationship > span {
+  width: 6px;
+  height: 6px;
+  margin-top: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.reference-relationship p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.references-source {
+  display: flex;
+  margin-top: 12px;
+  padding: 12px 4px 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   color: var(--muted);
   font-size: 12px;
+}
+
+.references-source p {
+  margin: 0;
+}
+
+.references-source a {
+  display: inline-flex;
+  min-height: 36px;
+  padding: 0 12px;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 650;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.references-source a:hover {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--line));
+  color: var(--primary);
+  background: var(--primary-soft);
 }
 
 .contact-section {
@@ -2884,6 +3087,10 @@ a {
   .profile-card:last-child {
     grid-column: 1 / -1;
   }
+
+  .references-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 840px) {
@@ -2960,6 +3167,15 @@ a {
   }
 
   .section-heading p {
+    grid-column: 1;
+  }
+
+  .references-heading {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .references-heading > p {
     grid-column: 1;
   }
 
@@ -3500,8 +3716,39 @@ a {
     min-height: 270px;
   }
 
-  .testimonial-section > div {
-    padding: 54px 24px;
+  .references-heading {
+    margin-bottom: 26px;
+  }
+
+  .references-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-card article {
+    min-height: auto;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .reference-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .reference-card blockquote {
+    margin-block: 20px 22px;
+  }
+
+  .reference-card blockquote p {
+    font-size: 15px;
+    line-height: 1.62;
+  }
+
+  .references-source {
+    padding-inline: 0;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .field-row {

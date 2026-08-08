@@ -39,6 +39,7 @@ import {
   metrics,
   profile,
   projects,
+  recommendations,
   skillGroups,
   technologies,
   type Project,
@@ -50,6 +51,7 @@ const navItems = [
   { label: "Experience", href: "#experience" },
   { label: "Expertise", href: "#expertise" },
   { label: "About", href: "#about" },
+  { label: "References", href: "#references" },
 ];
 
 const formSchema = z.object({
@@ -65,7 +67,7 @@ const reveal = {
   visible: { opacity: 1, y: 0 },
 };
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 
 function GitHubIcon({ size = 17 }: { size?: number }) {
   return (
@@ -500,7 +502,7 @@ export function Portfolio() {
             index="02"
             eyebrow="Career timeline"
             title="Growing from delivery to architecture."
-            copy="Experience across regulated finance and enterprise operations, consistently focused on making high-stakes software faster, safer, and easier to use."
+            copy="Production-tested frontend engineering across complex enterprise systems, driven by performance, reliability, and usability."
           />
           <div className="timeline">
             {experience.map((item, index) => (
@@ -588,19 +590,73 @@ export function Portfolio() {
           </div>
         </section>
 
-        <section className="section section-shell testimonial-section">
-          <Reveal>
-            <span className="section-kicker"><span>Proof</span>Testimonials</span>
-            <blockquote>
-              “References from engineering and product collaborators will appear here.”
-            </blockquote>
-            <p>Placeholder intentionally kept transparent until verified testimonials are provided.</p>
+        <section id="references" className="section section-shell references-section" aria-labelledby="references-title">
+          <Reveal className="references-heading">
+            <div className="section-kicker"><span>05</span>LinkedIn recommendations</div>
+            <h2 id="references-title">Trusted by the people I&apos;ve built alongside.</h2>
+            <p>
+              First-hand perspectives from teammates across engineering, quality, and product collaboration.
+            </p>
+          </Reveal>
+
+          <div className="references-grid">
+            {recommendations.map((recommendation, index) => (
+              <Reveal
+                key={recommendation.name}
+                delay={index * 0.07}
+                className={`reference-card reference-card-${index + 1}`}
+              >
+                <article>
+                  <header className="reference-author">
+                    <div
+                      className="reference-avatar"
+                      role="img"
+                      aria-label={`${recommendation.name} profile monogram`}
+                    >
+                      {recommendation.initials}
+                    </div>
+                    <div className="reference-identity">
+                      <h3>{recommendation.name}</h3>
+                      <p>{recommendation.role}</p>
+                    </div>
+                  </header>
+
+                  <div className="reference-meta">
+                    <span>LinkedIn recommendation</span>
+                    <time dateTime={recommendation.dateTime}>{recommendation.date}</time>
+                  </div>
+
+                  <blockquote>
+                    {recommendation.quote.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                  </blockquote>
+
+                  <footer className="reference-relationship">
+                    <span aria-hidden="true" />
+                    <p>{recommendation.relationship}</p>
+                  </footer>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal className="references-source">
+            <p>Three verified professional recommendations, shared publicly on LinkedIn.</p>
+            <a
+              href="https://www.linkedin.com/in/fateme-kashfi/details/recommendations/?detailScreenTabIndex=0"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View all recommendations on Fatemeh Kashfi’s LinkedIn profile (opens in a new tab)"
+            >
+              <LinkedInIcon size={16} />
+              View all on LinkedIn
+              <ArrowUpRight size={14} />
+            </a>
           </Reveal>
         </section>
 
         <section id="contact" className="section section-shell contact-section">
           <Reveal className="contact-copy">
-            <span className="section-kicker"><span>05</span>Contact</span>
+            <span className="section-kicker"><span>06</span>Contact</span>
             <h2>Have a complex product that needs clarity?</h2>
             <p>I&apos;m open to senior and lead frontend roles, product engineering work, and thoughtful collaborations.</p>
             <div className="contact-links">

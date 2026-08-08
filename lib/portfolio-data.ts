@@ -69,6 +69,43 @@ export const profile = {
   },
 };
 
+export const recommendations = [
+  {
+    name: "Alireza Rahmani",
+    initials: "AR",
+    role: "Front-End Developer",
+    date: "August 19, 2025",
+    dateTime: "2025-08-19",
+    relationship: "Alireza worked with Fatemeh on the same team",
+    quote: [
+      "Working with Fatemeh as a React Developer was such a great experience. They have a strong understanding of React and always bring creative solutions to the table.",
+      "What makes Fatemeh stand out is not just their coding skills, but also the way they collaborate with others, share ideas, and keep the whole team motivated. I’d definitely recommend Fatemeh to any team looking for a talented and supportive developer.",
+    ],
+  },
+  {
+    name: "Hasti Kashefi",
+    initials: "HK",
+    role: "Senior Software QA Engineer",
+    date: "July 3, 2024",
+    dateTime: "2024-07-03",
+    relationship: "Hasti worked with Fatemeh on the same team",
+    quote: [
+      "She is one of the best colleagues that I’ve ever had. Although she is young, she is experienced, clever, wise & understanding too. She’s open to learn new technologies and recommend the team to use them. I’m glad to have her by my side cause after couple of months I got to a point that she’s not only my co-worker but also my best friend who I can trust with no regret.",
+    ],
+  },
+  {
+    name: "Saba Heydari",
+    initials: "SH",
+    role: "Content and Digital Marketer",
+    date: "October 4, 2023",
+    dateTime: "2023-10-04",
+    relationship: "Saba worked with Fatemeh on the same team",
+    quote: [
+      "she played a significant role, often, in developing and implementing overall web strategies, and dealt with the details along with the bigger picture. Her coding was excellent and her designs were unique and innovative, so clients were always happy",
+    ],
+  },
+] as const;
+
 export const metrics = [
   { value: "16+", label: "Enterprise Projects Shipped" },
   { value: "30%", label: "OMS UI performance gain" },
