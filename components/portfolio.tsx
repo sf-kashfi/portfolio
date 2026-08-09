@@ -18,11 +18,9 @@ import {
   Mail,
   MapPin,
   Menu,
-  Moon,
   Palette,
   Send,
   GamepadDirectional,
-  Sun,
   X,
   Zap,
 } from "lucide-react";
@@ -115,21 +113,6 @@ function Reveal({
   );
 }
 
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
-
-  return (
-    <button
-      className="icon-button"
-      type="button"
-      aria-label={mounted && resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-    >
-      {!mounted ? <Moon size={17} /> : resolvedTheme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-    </button>
-  );
-}
 
 function Header() {
   const [open, setOpen] = useState(false);
@@ -147,7 +130,6 @@ function Header() {
         ))}
       </nav>
       <div className="header-actions">
-        <ThemeToggle />
         <a className="header-cta" href="#contact">
           Let&apos;s talk <ArrowUpRight size={15} />
         </a>
