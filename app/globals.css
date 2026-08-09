@@ -422,9 +422,12 @@ a {
 .window-secondary {
   right: 6%;
   bottom: 72px;
+  display: grid;
   width: 52%;
   height: 190px;
   padding: 22px;
+  grid-template-rows: auto minmax(0, 1fr);
+  row-gap: 18px;
   transform: rotate(3deg);
 }
 
@@ -498,8 +501,8 @@ a {
 
 .chart-bars {
   display: flex;
-  height: 110px;
-  margin-top: 18px;
+  width: 100%;
+  min-height: 0;
   align-items: flex-end;
   gap: 7px;
 }
@@ -5133,11 +5136,7 @@ body::before {
     bottom: 24px;
     width: 58%;
     height: 132px;
-  }
-
-  .window-secondary .chart-bars {
-    height: 75px;
-    margin-top: 12px;
+    row-gap: 12px;
   }
 
   .visual-badge {
