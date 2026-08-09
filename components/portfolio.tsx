@@ -347,42 +347,44 @@ function ProjectDialog({ project }: { project: Project }) {
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
-          <div className="dialog-top">
-            <div>
-              <span className="project-eyebrow">{project.eyebrow}</span>
-              <Dialog.Title>{project.title}</Dialog.Title>
-              <Dialog.Description>{project.summary}</Dialog.Description>
+          <div className="dialog-scroll">
+            <div className="dialog-top">
+              <div>
+                <span className="project-eyebrow">{project.eyebrow}</span>
+                <Dialog.Title>{project.title}</Dialog.Title>
+                <Dialog.Description>{project.summary}</Dialog.Description>
+              </div>
+              <Dialog.Close className="icon-button" aria-label="Close case study">
+                <X size={18} />
+              </Dialog.Close>
             </div>
-            <Dialog.Close className="icon-button" aria-label="Close case study">
-              <X size={18} />
-            </Dialog.Close>
-          </div>
-          <ProjectPreview project={project} />
-          <div className="case-study-grid">
-            <div><span>Challenge</span><p>{project.challenge}</p></div>
-            <div><span>Approach</span><p>{project.solution}</p></div>
-          </div>
-          <div className="case-results">
-            <span>Outcomes</span>
-            <ul>{project.achievements.map((item) => <li key={item}><Check size={15} />{item}</li>)}</ul>
-          </div>
-          <div className="dialog-footer">
-            <div className="tech-row">{project.tech.map((tech) => <span key={tech}>{tech}</span>)}</div>
-            <div className="dialog-actions">
-              <a className="button button-secondary" href={`/projects/${project.slug}`}>
-                Full case study <ArrowRight size={16} />
-              </a>
-              {project.link && (
-                <a
-                  className="button button-primary"
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Visit ${project.title} product (opens in a new tab)`}
-                >
-                  Visit project <ExternalLink size={16} />
+            <ProjectPreview project={project} />
+            <div className="case-study-grid">
+              <div><span>Challenge</span><p>{project.challenge}</p></div>
+              <div><span>Approach</span><p>{project.solution}</p></div>
+            </div>
+            <div className="case-results">
+              <span>Outcomes</span>
+              <ul>{project.achievements.map((item) => <li key={item}><Check size={15} />{item}</li>)}</ul>
+            </div>
+            <div className="dialog-footer">
+              <div className="tech-row">{project.tech.map((tech) => <span key={tech}>{tech}</span>)}</div>
+              <div className="dialog-actions">
+                <a className="button button-secondary" href={`/projects/${project.slug}`}>
+                  Full case study <ArrowRight size={16} />
                 </a>
-              )}
+                {project.link && (
+                  <a
+                    className="button button-primary"
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit ${project.title} product (opens in a new tab)`}
+                  >
+                    Visit project <ExternalLink size={16} />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </Dialog.Content>
