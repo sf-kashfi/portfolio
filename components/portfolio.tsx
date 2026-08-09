@@ -22,6 +22,7 @@ import {
   Palette,
   Send,
   GamepadDirectional,
+  Hand,
   Sun,
   X,
   Zap,
@@ -446,7 +447,7 @@ export function Portfolio() {
               <span /> Available for senior frontend opportunities
             </motion.div>
             <motion.p className="hero-greeting" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              Hi, I&apos;m Fatemeh <span aria-hidden="true">✦</span>
+              Hi, I&apos;m Fatemeh <span aria-hidden="true"><Hand size={14} strokeWidth={1.8} /></span>
             </motion.p>
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
               I turn complex systems
