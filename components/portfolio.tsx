@@ -46,11 +46,11 @@ import {
 } from "@/lib/portfolio-data";
 
 const navItems = [
-  { label: "Home", href: "#top" },
-  { label: "Work", href: "#work" },
-  { label: "Experience", href: "#experience" },
-  { label: "Expertise", href: "#expertise" },
-  { label: "About", href: "#about" },
+  { label: "Overview", href: "#top" },
+  { label: "Selected work", href: "#work" },
+  { label: "Journey", href: "#experience" },
+  { label: "Practice", href: "#expertise" },
+  { label: "Profile", href: "#about" },
   { label: "References", href: "#references" },
 ];
 
@@ -188,32 +188,39 @@ function Header() {
 function HeroVisual() {
   const reduceMotion = useReducedMotion();
   return (
-    <div className="hero-visual" aria-label="Abstract interface architecture visualization">
+    <div className="hero-visual" aria-label="Frontend engineering workspace visualization">
       <div className="visual-grid" />
+      <div className="visual-heading">
+        <span>Engineering workspace</span>
+        <strong>Designing dependable product systems</strong>
+      </div>
       <motion.div
         className="visual-window window-primary"
-        animate={reduceMotion ? undefined : { y: [0, -7, 0] }}
-        transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+        animate={reduceMotion ? undefined : { y: [0, -6, 0], rotate: [-1.5, -0.5, -1.5] }}
+        transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
       >
-        <div className="window-bar"><i /><i /><i /><span>workspace.tsx</span></div>
+        <div className="window-bar"><i /><i /><i /><span>product-system.tsx</span></div>
+        <div className="workspace-title"><small>Architecture</small><strong>Complexity, composed.</strong></div>
         <div className="code-line long" />
         <div className="code-line medium" />
         <div className="code-line short" />
         <div className="mini-panels">
-          <span /><span /><span />
+          <span><b>UI</b><small>Accessible</small></span>
+          <span><b>DX</b><small>Typed</small></span>
+          <span><b>QA</b><small>Tested</small></span>
         </div>
       </motion.div>
       <motion.div
         className="visual-window window-secondary"
-        animate={reduceMotion ? undefined : { y: [0, 8, 0], x: [0, -3, 0] }}
-        transition={{ repeat: Infinity, duration: 8.5, ease: "easeInOut" }}
+        animate={reduceMotion ? undefined : { y: [0, 7, 0], x: [0, -3, 0] }}
+        transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
       >
-        <div className="signal-row"><span className="live-dot" /> LIVE DATA</div>
-        <div className="chart-bars">{[48, 72, 58, 88, 68, 96, 76].map((h) => <i key={h} style={{ height: `${h}%` }} />)}</div>
+        <div className="signal-row"><span className="live-dot" /> SYSTEM HEALTH</div>
+        <div className="chart-bars">{[48, 72, 58, 88, 68, 96, 76].map((h, index) => <i key={`${h}-${index}`} style={{ height: `${h}%` }} />)}</div>
       </motion.div>
       <div className="visual-orbit orbit-one"><span>React</span></div>
       <div className="visual-orbit orbit-two"><span>TS</span></div>
-      <div className="visual-badge"><Zap size={14} /> Performance first</div>
+      <div className="visual-badge"><Zap size={14} /> Performance-minded</div>
     </div>
   );
 }
@@ -432,21 +439,24 @@ export function Portfolio() {
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       <Header />
-      <main>
+      <main className="portfolio-main">
         <section id="top" className="hero section-shell">
           <div className="hero-copy">
             <motion.div className="availability" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
-              <span /> Open to Senior Front-End Engineering opportunities
+              <span /> Available for senior frontend opportunities
             </motion.div>
+            <motion.p className="hero-greeting" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              Hi, I&apos;m Fatemeh <span aria-hidden="true">✦</span>
+            </motion.p>
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
-              Engineering clarity
-              <span> into complex products.</span>
+              I turn complex systems
+              <span> into clear products.</span>
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.6 }}>
               {profile.intro}
             </motion.p>
             <motion.div className="hero-actions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
-              <a className="button button-primary" href="#work">Explore selected work <ArrowDown size={16} /></a>
+              <a className="button button-primary" href="#work">See my selected work <ArrowDown size={16} /></a>
               <a className="button button-secondary" href="/documents/resume/Fatemeh-Kashfi.pdf" download="Fatemeh-Kashfi.pdf">Download CV <Download size={16} /></a>
             </motion.div>
             <motion.div className="hero-meta" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>

@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowUpRight, Check, ExternalLink, LockKeyhole } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectGallery } from "@/components/project-gallery";
@@ -8,7 +9,7 @@ export function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const project = projects.find((item) => item.slug === slug);
   return project
