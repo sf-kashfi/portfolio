@@ -447,7 +447,7 @@ export function Portfolio() {
             </motion.p>
             <motion.div className="hero-actions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
               <a className="button button-primary" href="#work">Explore selected work <ArrowDown size={16} /></a>
-              <a className="button button-secondary" href="/resume" target="_blank">Download CV <Download size={16} /></a>
+              <a className="button button-secondary" href="/documents/resume/Fatemeh-Kashfi.pdf" download="Fatemeh-Kashfi.pdf">Download CV <Download size={16} /></a>
             </motion.div>
             <motion.div className="hero-meta" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
               <span><MapPin size={14} /> {profile.location}</span>
@@ -677,7 +677,7 @@ export function Portfolio() {
         <p>Built with Next.js, TypeScript, and an obsession with the details.</p>
         <div className="footer-links">
           <a href="#top">Back to top <ArrowUpRight size={14} /></a>
-          <a href="/resume" target="_blank">Resume <Download size={14} /></a>
+          <a href="/documents/resume/Fatemeh-Kashfi.pdf" target="_blank" rel="noopener noreferrer">Resume <Download size={14} /></a>
         </div>
       </footer>
     </>
