@@ -47,11 +47,11 @@ import {
 } from "@/lib/portfolio-data";
 
 const navItems = [
-  { label: "Overview", href: "#top" },
-  { label: "Selected work", href: "#work" },
-  { label: "Journey", href: "#experience" },
-  { label: "Practice", href: "#expertise" },
-  { label: "Profile", href: "#about" },
+  { label: "Home", href: "#top" },
+  { label: "Selected Projects", href: "#work" },
+  { label: "Career", href: "#experience" },
+  { label: "Expertise", href: "#expertise" },
+  { label: "About", href: "#about" },
   { label: "References", href: "#references" },
 ];
 
