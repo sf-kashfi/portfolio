@@ -143,7 +143,7 @@ export const experience = [
     ],
   },
   {
-    period: "Sep 2021 — Dec 2024",
+    period: "Feb 2022 — Dec 2024",
     role: "Frontend Developer",
     company: "Datxsoft",
     domain: "Capital Markets · Pasargad Financial Group",
