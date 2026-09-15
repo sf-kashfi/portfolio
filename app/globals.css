@@ -1432,6 +1432,80 @@ button, a { -webkit-tap-highlight-color: transparent; }
     gap: 12px;
   }
 
+  .project-preview-accordion {
+    padding-top: 63px;
+    container-type: inline-size;
+  }
+
+  .accordion-gallery-container { container-type: inline-size; }
+  .accordion-gallery, .accordion-gallery-placeholder { height: 340px; }
+  .accordion-gallery { flex-direction: row; }
+  .accordion-gallery-panel {
+    flex: 1 1 0;
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    perspective: 1400px;
+    --ag-gray: 1;
+    --ag-dim: 0.35;
+  }
+  button.accordion-gallery-panel { cursor: pointer; }
+  .accordion-gallery-panel[data-active="true"] {
+    flex-grow: var(--ag-grow);
+    --ag-gray: 0;
+    --ag-dim: 0;
+  }
+  .accordion-gallery-surface {
+    border: 1px solid color-mix(in srgb, var(--line-strong) 72%, var(--surface));
+    border-radius: var(--radius-control);
+    background: var(--surface-2);
+    box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--text) 24%, transparent);
+  }
+  .accordion-gallery-surface::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface) 22%, transparent);
+    content: "";
+  }
+  .accordion-gallery-panel:focus-visible .accordion-gallery-surface {
+    outline: 2px solid var(--preview-color, var(--primary));
+    outline-offset: -3px;
+  }
+  .accordion-gallery-media {
+    inset: -16px;
+    transform-origin: 0 0;
+    filter: grayscale(var(--ag-gray));
+    will-change: transform;
+  }
+  .accordion-gallery-dim {
+    background: color-mix(in srgb, var(--canvas) 12%, black);
+    opacity: var(--ag-dim);
+  }
+  .accordion-gallery-caption {
+    padding: 8px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: calc(var(--radius-control) - 7px);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    color: var(--text);
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  .accordion-gallery-panel[data-active="true"] .accordion-gallery-caption { opacity: 1; transform: translateX(0); }
+  .accordion-gallery-accent {
+    background: var(--preview-color, var(--primary));
+    box-shadow: 0 0 12px var(--preview-glow, var(--primary-soft));
+  }
+  @container (max-width: 520px) {
+    .accordion-gallery, .accordion-gallery-placeholder { height: 480px; }
+    .accordion-gallery { flex-direction: column; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .accordion-gallery-media { will-change: auto; }
+  }
+
   .oms-preview-grid figure {
     position: relative;
     min-width: 0;

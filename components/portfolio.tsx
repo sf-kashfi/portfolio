@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { AccordionGallery } from "@/components/accordion-gallery";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -46,6 +47,7 @@ import {
   type Project,
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/cn";
+import { projectGalleryCrops } from "@/lib/project-gallery-crops";
 
 const navItems = [
   { label: "Home", href: "#top" },
@@ -298,18 +300,22 @@ function SectionHeading({
   );
 }
 
-function ProjectPreview({ project }: { project: Project }) {
+function ProjectPreview({ project, gallery = false }: { project: Project; gallery?: boolean }) {
   const { resolvedTheme } = useTheme();
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const previewLabel = project.previewLabel ?? `${project.slug}.app`;
   const previewStatus = project.previewStatus ?? "PRODUCT UI";
   const previewVariant = project.previewVariant ?? "trading";
+  const previewClassName = cn(
+    `project-preview project-preview-real preview-${previewVariant} accent-${project.accent}`,
+    gallery && "project-preview-accordion",
+  );
 
   if (project.images?.length) {
     if (!mounted && project.lightPreviewImages?.length) {
       return (
         <div
-          className={`project-preview project-preview-real preview-${previewVariant} accent-${project.accent}`}
+          className={previewClassName}
           role="status"
           aria-label={`Loading ${project.title} screenshots`}
           aria-busy="true"
@@ -319,52 +325,72 @@ function ProjectPreview({ project }: { project: Project }) {
             <small>{previewLabel}</small>
             <i>{previewStatus}</i>
           </div>
-          <div className="oms-preview-grid oms-preview-loading" aria-hidden="true">
-            <figure className="oms-preview-main" />
-            <div className="oms-preview-supporting"><figure /><figure /></div>
-          </div>
+          {gallery ? (
+            <div className="accordion-gallery-container mx-4 mb-4" aria-hidden="true">
+              <div className="accordion-gallery-placeholder rounded-2xl bg-surface" />
+            </div>
+          ) : (
+            <div className="oms-preview-grid oms-preview-loading" aria-hidden="true">
+              <figure className="oms-preview-main" />
+              <div className="oms-preview-supporting"><figure /><figure /></div>
+            </div>
+          )}
         </div>
       );
     }
 
+    const curatedImages = gallery ? project.previewImageSources?.flatMap((src) => {
+      const image = project.images?.find((item) => item.src === src);
+      return image ? [image] : [];
+    }) : undefined;
     const previewImages = resolvedTheme === "light" && project.lightPreviewImages?.length
       ? project.lightPreviewImages
-      : project.images;
+      : curatedImages?.length ? curatedImages : project.images;
+    const items = previewImages.slice(0, 5);
     const [hero, ...supporting] = previewImages;
 
     return (
-      <div className={`project-preview project-preview-real preview-${previewVariant} accent-${project.accent}`}>
+      <div className={previewClassName}>
         <div className="oms-preview-header" aria-hidden="true">
           <span /><span /><span />
           <small>{previewLabel}</small>
           <i>{previewStatus}</i>
         </div>
-        <div className="oms-preview-grid">
-          <figure className="oms-preview-main">
-            <Image
-              src={hero.src}
-              alt={hero.alt}
-              fill
-              loading="lazy"
-              sizes="(max-width: 640px) calc(100vw - 52px), (max-width: 840px) 65vw, (max-width: 1100px) 46vw, 52vw"
-            />
-            <figcaption>{hero.label}</figcaption>
-          </figure>
-          <div className="oms-preview-supporting">
-            {supporting.slice(0, 2).map((image) => (
-              <figure key={image.label}>
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 640px) calc(50vw - 31px), (max-width: 840px) 25vw, 20vw"
-                />
-                <figcaption>{image.label}</figcaption>
-              </figure>
-            ))}
+        {gallery ? (
+          <AccordionGallery
+            key={items.map((item) => item.src).join("|")}
+            items={items.map((image) => ({ ...image, crop: projectGalleryCrops[image.src] }))}
+            label={`${project.title} screenshots`}
+            className="mx-4 mb-4"
+          />
+        ) : (
+          <div className="oms-preview-grid">
+            <figure className="oms-preview-main">
+              <Image
+                src={hero.src}
+                alt={hero.alt}
+                fill
+                loading="lazy"
+                sizes="(max-width: 640px) calc(100vw - 52px), (max-width: 840px) 65vw, (max-width: 1100px) 46vw, 52vw"
+              />
+              <figcaption>{hero.label}</figcaption>
+            </figure>
+            <div className="oms-preview-supporting">
+              {supporting.slice(0, 2).map((image) => (
+                <figure key={image.label}>
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 640px) calc(50vw - 31px), (max-width: 840px) 25vw, 20vw"
+                  />
+                  <figcaption>{image.label}</figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -417,7 +443,7 @@ function ProjectDialog({ project }: { project: Project }) {
                 <X size={18} />
               </Dialog.Close>
             </div>
-            <ProjectPreview project={project} />
+            <ProjectPreview project={project} gallery />
             <div className={cn("case-study-grid", "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5")}>
               <div className="min-w-0"><span>Challenge</span><p>{project.challenge}</p></div>
               <div className="min-w-0"><span>Approach</span><p>{project.solution}</p></div>

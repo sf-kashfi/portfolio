@@ -25,6 +25,7 @@ export type Project = {
   link?: string;
   confidential?: boolean;
   images?: ProjectImage[];
+  previewImageSources?: string[];
   lightPreviewImages?: ProjectPreviewImage[];
   previewLabel?: string;
   previewStatus?: string;
@@ -180,6 +181,13 @@ const projectCatalog: Project[] = [
     previewLabel: "OMID BANK / MOBILE SERVICE PLATFORM",
     previewStatus: "RTL · SECURE PWA",
     previewVariant: "banking",
+    previewImageSources: [
+      pwa("service-home.png"),
+      pwa("wallet-account-transfer.png"),
+      pwa("deposit-services.png"),
+      pwa("loan-installment-payment.png"),
+      pwa("traffic-fines-detail.png"),
+    ],
     businessOverview:
       "Omid Bank helps customers complete everyday banking and adjacent daily tasks without visiting a branch. A service-led home connects wallet operations, card-to-card transfers, bill inquiry and payment, SIM charge and internet packages, mutual funds, and a dedicated banking area for deposits, cards, loans, and onboarding. Civic tools extend the same mobile experience to traffic fines, license status, negative points, and passport inquiries. Mobile OTP provides fast entry, while a second user-management login protects deeper bank workflows and keeps balances, statements, installments, and requests visible in one coherent RTL product.",
     technicalOverview:
@@ -459,6 +467,13 @@ const projectCatalog: Project[] = [
       "React Hook Form",
       "Yup",
     ],
+    previewImageSources: [
+      oms("market-overview.png"),
+      oms("technical-analysis.png"),
+      oms("orders-market-watch.png"),
+      oms("portfolio-dashboard.png"),
+      oms("trading-calendar.png"),
+    ],
     lightPreviewImages: [
       {
         src: oms("technical-analysis-light.png"),
@@ -724,6 +739,13 @@ const projectCatalog: Project[] = [
     previewLabel: "INVESTOPOD / INVESTOR GATEWAY",
     previewStatus: "RTL · PWA",
     previewVariant: "investor",
+    previewImageSources: [
+      atom("Dashboard -1-28.jpg"),
+      atom("Investo PWA-12.png"),
+      atom("Investo PWA-29.png"),
+      atom("Investo PWA-30.png"),
+      atom("Dashboard -1-36.jpg"),
+    ],
     businessOverview:
       "Atom Investor is the digital investor gateway for funds managed under the Pasargad capital-market services group. It enables investors to open access, complete regulatory identity steps, and place subscription (issue) and redemption requests without relying solely on branch or offline processes. Sejam-backed registration and login lead into portfolio holdings and fund NAV context, multi-step purchases with agreement acceptance and payment, redemption against available units, order tracking with filters and revocation where allowed, and account statement review. Profile tools also support Sejam data refresh and password management, keeping identity, payment, and portfolio data aligned throughout the investor journey.",
     technicalOverview:
@@ -924,6 +946,13 @@ const projectCatalog: Project[] = [
     previewLabel: "WORK DESK / OPERATIONS OS",
     previewStatus: "RTL · MULTI-WINDOW",
     previewVariant: "workspace",
+    previewImageSources: [
+      workDesk("Screenshot 2026-07-29 090511.png"),
+      workDesk("Screenshot 2026-08-06 170447.png"),
+      workDesk("Screenshot 2026-08-06 170109.png"),
+      workDesk("Screenshot 2026-07-28 194805.png"),
+      workDesk("Screenshot 2026-07-28 200052.png"),
+    ],
     businessOverview:
       "Work Desk gives operational teams one browser-based environment for the systems they use throughout the day. A desktop-style shell keeps dashboards, meetings, task management, work reports, notifications, organization tools, and supporting applications available without forcing users through disconnected products. Teams can schedule meetings, coordinate attendees and agendas, capture minutes and follow-up actions, manage work in table or Kanban views, monitor progress, and move between multiple open applications while retaining context.",
     technicalOverview:
@@ -1104,6 +1133,13 @@ const projectCatalog: Project[] = [
     previewLabel: "SMS SENDER / MARKET NOTIFIER UI",
     previewStatus: "RTL · ROLE-BASED",
     previewVariant: "messaging",
+    previewImageSources: [
+      sms("17500582_xxl-1.png"),
+      sms("17500586_xxl-1.png"),
+      sms("17544170_xxl-1.png"),
+      sms("Screenshot (186).png"),
+      sms("17544198_xxl-1.png"),
+    ],
     businessOverview:
       "SMS Sender helps capital-market operations teams notify customers about market events, instrument stops, and custom campaigns without relying on ad-hoc messaging tools. Users compose SMS from manual numbers, Excel uploads, or an in-app phonebook, then send immediately or on Jalali-based schedules. Brokers and admins define market-event and stop-instrument campaigns with parameterized templates, keep unfinished work as drafts, and review pending requests before they go live. Contact teams manage customer lists and white/black-list interests so messages reach the right audience. Archives, system event logs, and date-range statistical reports provide visibility into what was sent and when, while role-based navigation keeps each user focused on permitted workflows.",
     technicalOverview:
