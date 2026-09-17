@@ -7,6 +7,14 @@ import { useState } from "react";
 import type { Project, ProjectImage } from "@/lib/portfolio-data";
 import { cn } from "@/lib/cn";
 
+const lightboxNavigationButtonClass = cn(
+  "button button-secondary",
+  "w-full min-w-0 min-h-11 px-3 xs:px-4 sm:w-32",
+  "justify-center gap-2 whitespace-nowrap text-sm",
+  "[&_svg]:size-5 [&_svg]:shrink-0",
+  "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:transform-none disabled:active:transform-none",
+);
+
 const omsGallery = {
   eyebrow: "Product walkthrough",
   title: "One platform, every trading decision.",
@@ -239,13 +247,25 @@ export function ProjectGallery({ project }: { project: Project }) {
                     sizes="100vw"
                   />
                 </div>
-                <div className={cn("gallery-lightbox-controls", "grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center")}>
-                  <button type="button" onClick={() => move(-1)} aria-label="View previous screenshot" className="min-h-11">
-                    <ChevronLeft size={20} /> Previous
+                <div className={cn("gallery-lightbox-controls", "grid grid-cols-2 gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center")}>
+                  <button
+                    type="button"
+                    onClick={() => move(-1)}
+                    aria-label="View previous screenshot"
+                    className={cn(lightboxNavigationButtonClass, "sm:justify-self-start")}
+                  >
+                    <ChevronLeft aria-hidden="true" />
+                    <span>Previous</span>
                   </button>
                   <p className="hidden sm:block">Use the arrow keys to explore</p>
-                  <button type="button" onClick={() => move(1)} aria-label="View next screenshot" className="min-h-11 sm:justify-self-end">
-                    Next <ChevronRight size={20} />
+                  <button
+                    type="button"
+                    onClick={() => move(1)}
+                    aria-label="View next screenshot"
+                    className={cn(lightboxNavigationButtonClass, "sm:justify-self-end")}
+                  >
+                    <span>Next</span>
+                    <ChevronRight aria-hidden="true" />
                   </button>
                 </div>
               </>
