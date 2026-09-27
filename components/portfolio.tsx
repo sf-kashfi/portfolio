@@ -170,7 +170,7 @@ function Header() {
           onClick={() => setOpen(false)}
         />
       )}
-          <header
+      <header
         className={cn(
           "site-header",
           open && "is-menu-open",
@@ -520,6 +520,42 @@ function ContactForm() {
 export function Portfolio() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+  const [countryCode, setCountryCode] = useState<string | null>(null);
+  const isNonIranianIp = countryCode !== null && countryCode !== "IR";
+  const location = isNonIranianIp ? "Istanbul, Turkey" : profile.location;
+  const resumeFilename = isNonIranianIp ? "Fatemeh-Kashfi-En.pdf" : "Fatemeh-Kashfi.pdf";
+  const resumeHref = `/documents/resume/${resumeFilename}`;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
+
+    async function detectLocation() {
+      try {
+        const response = await fetch("https://ipapi.co/json/", { signal: controller.signal });
+        if (!response.ok) return;
+
+        const result = z.object({
+          country_code: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/),
+        }).safeParse(await response.json());
+
+        if (result.success && !controller.signal.aborted) {
+          setCountryCode(result.data.country_code);
+        }
+      } catch {
+
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    }
+
+    void detectLocation();
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
+  }, []);
 
   return (
     <>
@@ -560,14 +596,14 @@ export function Portfolio() {
               </a>
               <a
                 className={cn("button button-secondary", "w-full min-h-11 sm:w-auto")}
-                href="/documents/resume/Fatemeh-Kashfi.pdf"
-                download="Fatemeh-Kashfi.pdf"
+                href={resumeHref}
+                download={resumeFilename}
               >
                 Download CV <Download size={16} />
               </a>
             </motion.div>
             <motion.div className="hero-meta" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-              <span><MapPin size={14} /> {profile.location}</span>
+              <span><MapPin size={14} /> {location}</span>
               <span><Code2 size={14} /> React · Next.js · TypeScript</span>
             </motion.div>
           </div>
@@ -830,7 +866,7 @@ export function Portfolio() {
         <p className="hidden md:block">Built with Next.js, TypeScript, and an obsession with the details.</p>
         <div className={cn("footer-links", "sm:justify-end md:justify-end")}>
           <a href="#top" className="min-h-11">Back to top <ArrowUpRight size={14} /></a>
-          <a href="/documents/resume/Fatemeh-Kashfi.pdf" target="_blank" rel="noopener noreferrer" className="min-h-11">
+          <a href={resumeHref} target="_blank" rel="noopener noreferrer" className="min-h-11">
             Resume <Download size={14} />
           </a>
         </div>
