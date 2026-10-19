@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { ProjectImageTilt } from "@/components/project-image-tilt";
 import type { Project, ProjectImage } from "@/lib/portfolio-data";
 import { cn } from "@/lib/cn";
 
@@ -46,13 +47,12 @@ function ProductFrame({
   className?: string;
 }) {
   return (
-    <button
+    <ProjectImageTilt
       className={cn(
         `product-frame product-frame-${image.theme} product-frame-${image.device ?? "desktop"}`,
         "min-w-0",
         className,
       )}
-      type="button"
       onClick={onOpen}
       aria-label={`Expand ${image.label} screenshot`}
     >
@@ -77,7 +77,7 @@ function ProductFrame({
               : "(max-width: 760px) 100vw, 42vw"}
         />
       </span>
-    </button>
+    </ProjectImageTilt>
   );
 }
 
