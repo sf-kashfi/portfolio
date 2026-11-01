@@ -31,8 +31,8 @@ const omsGallery = {
 
 function gallerySpan(emphasis: ProjectImage["emphasis"]) {
   if (emphasis === "hero") return "col-span-full lg:col-span-12";
-  if (emphasis === "feature") return "col-span-full md:col-span-1 lg:col-span-7";
-  return "col-span-full md:col-span-1 lg:col-span-5";
+  if (emphasis === "feature") return "col-span-full sm:col-span-1 lg:col-span-7";
+  return "col-span-full sm:col-span-1 lg:col-span-5";
 }
 
 function ProductFrame({
@@ -98,7 +98,7 @@ export function ProjectGallery({ project }: { project: Project }) {
   return (
     <>
       <section className={`oms-showcase project-showcase-${project.previewVariant ?? "trading"}`} aria-labelledby="project-showcase-title">
-        <div className={cn("oms-showcase-intro", "grid grid-cols-1 md:grid-cols-2 gap-6")}>
+        <div className={cn("oms-showcase-intro case-section-heading", "grid grid-cols-1 md:grid-cols-2")}>
           <div className="min-w-0">
             <span className="project-eyebrow">{gallery.eyebrow}</span>
             <h2 id="project-showcase-title">{gallery.title}</h2>
@@ -177,14 +177,14 @@ export function ProjectGallery({ project }: { project: Project }) {
               <div
                 className={cn(
                   "oms-gallery-heading",
-                  "grid grid-cols-[44px_minmax(0,1fr)] md:grid-cols-[54px_minmax(0,0.7fr)_minmax(0,1fr)] gap-3 md:gap-x-5",
+                  "grid grid-cols-[24px_minmax(0,1fr)] md:grid-cols-[24px_minmax(0,0.8fr)_minmax(0,1.2fr)] gap-x-3 gap-y-2 md:gap-x-5",
                 )}
               >
                 <span>{String(groupIndex + 1).padStart(2, "0")}</span>
                 <h3 id={groupId} className="min-w-0">{group.name}</h3>
                 <p className={cn("min-w-0 col-start-2 md:col-auto")}>{group.description}</p>
               </div>
-              <div className={cn("oms-gallery-grid", "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5")}>
+              <div className={cn("oms-gallery-grid", "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 items-start")}>
                 {groupImages.map((image) => {
                   const imageIndex = images.indexOf(image);
                   return (
