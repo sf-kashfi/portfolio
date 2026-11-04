@@ -517,7 +517,7 @@ function ContactForm() {
   );
 }
 
-export function Portfolio() {
+export function Portfolio({ headline }: { headline: React.ReactNode }) {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
   const [countryCode, setCountryCode] = useState<string | null>(null);
@@ -578,10 +578,7 @@ export function Portfolio() {
             <motion.p className="hero-greeting" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               Hi, I&apos;m Fatemeh <span aria-hidden="true"><Hand size={14} strokeWidth={1.8} /></span>
             </motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
-              I turn complex systems
-              <span> into clear products.</span>
-            </motion.h1>
+            {headline}
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.6 }}>
               {profile.intro}
             </motion.p>
