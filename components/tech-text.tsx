@@ -10,7 +10,6 @@ type Glyph = Box & {
   line: number;
   hitBox: Box;
   art: Art;
-  range: Range;
   frameLeft: number;
   frameRight: number;
   dx: number;
@@ -27,7 +26,6 @@ const IDLE_STEP = 600;
 const IDLE_PAUSE = 350;
 const RETURN_DURATION = 240;
 
-/** Decorative, event-driven enhancement. The server heading remains the layout and accessibility source. */
 export function TechText() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -66,7 +64,7 @@ export function TechText() {
     let focus = -1;
     let dragging = -1;
     const returns = new Map<number, Return>();
-    const sources = new Map<number, HTMLSpanElement | null>();
+    const sources = new Map<number, HTMLSpanElement>();
     let overlayDpr = 1;
     let captured: number | null = null;
     const pointer = { x: 0, y: 0, clientX: 0, clientY: 0, inside: false };
@@ -93,21 +91,30 @@ export function TechText() {
       press.index = -1;
       if (id !== null && host.hasPointerCapture(id)) host.releasePointerCapture(id);
     };
-    const updateHighlight = () => {
-      if (!CSS.highlights) return;
-      if (sources.size) CSS.highlights.set("tech-text-drag", new Highlight(...Array.from(sources.keys(), (index) => glyphs[index].range)));
-      else CSS.highlights.delete("tech-text-drag");
+    const sourceRange = (position: number) => {
+      const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT);
+      let at = 0;
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const chars = Array.from(node.textContent || "");
+        if (position < at + chars.length) {
+          const offset = chars.slice(0, position - at).join("").length;
+          const range = document.createRange();
+          range.setStart(node, offset);
+          range.setEnd(node, offset + chars[position - at].length);
+          return range;
+        }
+        at += chars.length;
+      }
     };
     const restoreSource = (index: number) => {
       const source = sources.get(index);
       if (source) {
         source.replaceWith(...source.childNodes);
-        dirty = true; // Rebuild live ranges after the fallback wrapper has been removed.
       }
       sources.delete(index);
       returns.delete(index);
-      updateHighlight();
       if (!sources.size) {
+        heading.normalize();
         host.removeAttribute("data-tech-dragging");
         overlay.remove();
       }
@@ -120,14 +127,14 @@ export function TechText() {
     const liftSource = (index: number) => {
       if (sources.has(index)) return;
       const glyph = glyphs[index];
+      const range = sourceRange(glyph.position);
+      if (!range) return;
       host.setAttribute("data-tech-dragging", "");
-      if (CSS.highlights) { sources.set(index, null); updateHighlight(); }
-      else {
-        const source = document.createElement("span");
-        source.style.visibility = "hidden";
-        glyph.range.surroundContents(source);
-        sources.set(index, source);
-      }
+      const source = document.createElement("span");
+      source.style.visibility = "hidden";
+      source.dataset.techSource = String(glyph.position);
+      range.surroundContents(source);
+      sources.set(index, source);
       resizeOverlay();
       document.body.append(overlay);
     };
@@ -150,7 +157,6 @@ export function TechText() {
       showStatic();
     };
 
-    // Only called after resize, font loading, or a theme change; never in the animation loop.
     const layout = () => {
       showStatic();
       release();
@@ -190,7 +196,6 @@ export function TechText() {
           range.setEnd(text, offset);
           const charRect = range.getBoundingClientRect();
           if (!char.trim()) continue;
-          // A span can wrap. Its union rectangle is not the current letter's line box.
           const baseline = charRect.top - bounds.top + (charRect.height - ascent - descent) / 2 + ascent;
           const m = probe.measureText(char);
           const key = `${font}|${style.color}|${char}`;
@@ -229,9 +234,8 @@ export function TechText() {
             art = { outline: image, fill, w, h };
             cache.set(key, art);
           }
-          // DOM ranges preserve the real line's kerning and tracking, including word spaces.
           const origin = charRect.left - bounds.left;
-          next.push({ char, position: charPosition, line: lineIndex, art, range: range.cloneRange(),
+          next.push({ char, position: charPosition, line: lineIndex, art,
             frameLeft: 5, frameRight: 5,
             hitBox: { x: origin, y: charRect.top - bounds.top, w: charRect.width, h: charRect.height },
             x: origin - m.actualBoundingBoxLeft, y: baseline - m.actualBoundingBoxAscent,
@@ -242,7 +246,6 @@ export function TechText() {
         range.detach();
       }
       glyphs = next;
-      // Fit horizontal decoration into the real tracked gaps, especially around narrow glyphs.
       for (let index = 0; index < next.length; index++) {
         const glyph = next[index];
         const previous = next[index - 1];
@@ -265,7 +268,6 @@ export function TechText() {
       let best = -1;
       let distance = Infinity;
       glyphs.forEach((glyph, index) => {
-        // Both axes matter: a pointer on one line must never select a letter on another.
         const { x: gx, y: gy, w, h } = glyph.hitBox;
         const dx = Math.max(gx - x, 0, x - gx - w);
         const dy = Math.max(gy - y, 0, y - gy - h);
@@ -279,7 +281,6 @@ export function TechText() {
       const art = g.art;
       ctx.globalAlpha = 1;
       if (filled) ctx.drawImage(art.fill, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
-      // Sprite coordinates are relative to the ink bounds; padding is baked in.
       ctx.drawImage(art.outline, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
     };
 
@@ -292,7 +293,6 @@ export function TechText() {
       ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
       ctx.globalAlpha = 1;
       for (const [x, y] of [[frame.x, frame.y], [frame.x + frame.w - 4, frame.y], [frame.x, frame.y + frame.h], [frame.x + frame.w - 4, frame.y + frame.h]]) {
-        // Inset the marks horizontally so their outer edges cannot reach the next letter.
         ctx.fillRect(x, Math.round(y) - 2, 4, 4);
       }
       const moved = Math.hypot(glyph.dx, glyph.dy) > 1;
@@ -331,13 +331,11 @@ export function TechText() {
       let moving = kicks.length > 0;
       glyphs.forEach((g, i) => {
         if (i === dragging) {
-          // No lag or cap: preserve the exact point at which the glyph was grabbed.
           g.dx = pointer.clientX - rect.left - grab.x;
           g.dy = pointer.clientY - rect.top - grab.y;
         } else if (returns.has(i)) {
           const returning = returns.get(i)!;
           const progress = Math.min(1, (now - returning.at) / RETURN_DURATION);
-          // Time-normalized critically damped spring: long drags settle just as quickly.
           const end = 11 * Math.exp(-10);
           const spring = progress >= 1 ? 0 : ((1 + 10 * progress) * Math.exp(-10 * progress) - end) / (1 - end);
           g.dx = returning.x * spring;
@@ -347,7 +345,6 @@ export function TechText() {
             if (!returns.size && dragging < 0 && idleLetters.length) idleIndex = (idleIndex + 1) % idleLetters.length;
           } else moving = true;
         } else if (Math.hypot(g.dx, g.dy, g.vx, g.vy) > 0.08) {
-          // Substeps keep spring integration stable on slower mobile frames.
           for (let step = 0; step < 2; step++) {
             const damping = motion.matches ? 35 : 25;
             g.vx += (-300 * g.dx - damping * g.vx) * dt / 2;
@@ -360,7 +357,6 @@ export function TechText() {
       });
       focus = dragging >= 0 ? dragging : motion.matches && !returns.size ? idleLetters[0] ?? -1
         : pointer.inside ? hit(pointer.x, pointer.y) : returns.size ? -1 : idleLetters[idleIndex] ?? -1;
-      // Selection is atomic: no fading old outline or frame gliding over other letters.
       const active = focus >= 0 || moving;
       if (!active) {
         showStatic();
@@ -377,7 +373,6 @@ export function TechText() {
         overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
         overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
         overlayCtx.setTransform(overlayDpr, 0, 0, overlayDpr, rect.left * overlayDpr, rect.top * overlayDpr);
-        // Each lifted letter owns its decoration; finishing one never resets the active drag.
         for (const index of sources.keys()) {
           drawArt(glyphs[index], overlayCtx, true);
           drawFrame(glyphs[index], overlayCtx);
@@ -453,7 +448,6 @@ export function TechText() {
       pointer.inside = true;
       if (index < 0) { wake(); return; }
       press.x = pointer.x; press.y = pointer.y; press.at = performance.now(); press.index = index;
-      // Touch remains a native scrolling gesture. A stationary tap still triggers the bounce.
       if (e.pointerType !== "touch") {
         dragging = index;
         returns.delete(index);
@@ -539,8 +533,6 @@ export function TechText() {
     intersection.observe(host);
     const theme = new MutationObserver(invalidate);
     theme.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style", "data-theme"] });
-    // Load the existing mono face before drawing labels: otherwise its first use can
-    // trigger a late font event in the middle of a drag. Static text stays visible.
     const monoFamily = getComputedStyle(document.body).getPropertyValue("--font-geist-mono").trim() || "monospace";
     const onFonts = () => { if (alive) invalidate(); };
     document.fonts.addEventListener("loadingdone", onFonts);
@@ -549,7 +541,6 @@ export function TechText() {
       document.fonts.load(`10px ${monoFamily}`, "Δ 0123456789 / L × I turn complex systems into clear products."),
     ]).then(onFonts, onFonts);
 
-    // Paint c synchronously on mount, before waiting for fonts or the first observer callback.
     const bounds = host.getBoundingClientRect();
     visible = bounds.bottom > 0 && bounds.top < innerHeight && bounds.right > 0 && bounds.left < innerWidth;
     wake();

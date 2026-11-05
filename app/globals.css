@@ -748,7 +748,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .tech-text[data-tech-active] .tech-text-canvas { visibility: visible; }
   .tech-text[data-tech-ready] { user-select: none; -webkit-user-select: none; }
   .tech-text[data-tech-dragging] h1 { user-select: none; -webkit-user-select: none; }
-  ::highlight(tech-text-drag) { color: transparent; text-shadow: none; }
   .tech-text-drag-overlay {
     position: fixed;
     inset: 0;
