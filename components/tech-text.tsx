@@ -3,27 +3,27 @@
 import { useLayoutEffect, useRef } from "react";
 
 type Box = { x: number; y: number; w: number; h: number };
-type Art = { outline: HTMLCanvasElement; w: number; h: number };
+type Art = { outline: HTMLCanvasElement; fill: HTMLCanvasElement; w: number; h: number };
 type Glyph = Box & {
   char: string;
   position: number;
   line: number;
   hitBox: Box;
   art: Art;
+  range: Range;
   dx: number;
   dy: number;
   vx: number;
   vy: number;
 };
 type Kick = { index: number; at: number; strength: number };
+type Return = { at: number; x: number; y: number };
 
 const PAD = 32;
 const MAX_PIXELS = 1_500_000;
 const IDLE_STEP = 600;
 const IDLE_PAUSE = 350;
-const approach = (value: number, target: number, dt: number, lag = 0.075) =>
-  target + (value - target) * Math.exp(-dt / lag);
-const near = (value: number, target: number) => Math.abs(value - target) < 0.025;
+const RETURN_DURATION = 240;
 
 /** Decorative, event-driven enhancement. The server heading remains the layout and accessibility source. */
 export function TechText() {
@@ -34,9 +34,13 @@ export function TechText() {
     const host = canvas?.parentElement;
     const heading = host?.querySelector("h1");
     if (!canvas || !host || !heading) return;
-    const ctx = canvas.getContext("2d");
+    const baseCtx = canvas.getContext("2d");
     const probe = document.createElement("canvas").getContext("2d");
-    if (!ctx || !probe) return;
+    const overlay = document.createElement("canvas");
+    const overlayCtx = overlay.getContext("2d");
+    if (!baseCtx || !probe || !overlayCtx) return;
+    overlay.className = "tech-text-drag-overlay";
+    overlay.setAttribute("aria-hidden", "true");
 
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
     let alive = true;
@@ -58,43 +62,88 @@ export function TechText() {
     let rect = { left: 0, top: 0 };
     let rectDirty = false;
     let focus = -1;
-    let frameIndex = -1;
     let dragging = -1;
+    const returns = new Map<number, Return>();
+    const sources = new Map<number, HTMLSpanElement | null>();
+    let overlayDpr = 1;
     let captured: number | null = null;
-    let frameAlpha = 0;
-    let frame: Box = { x: 0, y: 0, w: 0, h: 0 };
-    const pointer = { x: 0, y: 0, inside: false };
+    const pointer = { x: 0, y: 0, clientX: 0, clientY: 0, inside: false };
     const grab = { x: 0, y: 0 };
     const press = { x: 0, y: 0, at: 0, index: -1 };
     const kicks: Kick[] = [];
 
-    const allowed = () => alive && visible && !document.hidden;
+    const allowed = () => alive && (visible || dragging >= 0 || returns.size > 0) && !document.hidden;
     const stopTimer = () => {
       clearTimeout(timer);
       timer = undefined;
     };
     const showStatic = () => {
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      baseCtx.setTransform(1, 0, 0, 1, 0, 0);
+      baseCtx.clearRect(0, 0, canvas.width, canvas.height);
       host.removeAttribute("data-tech-active");
       host.removeAttribute("data-tech-target");
       host.style.cursor = "";
     };
     const release = () => {
-      if (captured !== null && host.hasPointerCapture(captured)) host.releasePointerCapture(captured);
+      const id = captured;
       captured = null;
       dragging = -1;
       press.index = -1;
+      if (id !== null && host.hasPointerCapture(id)) host.releasePointerCapture(id);
+    };
+    const updateHighlight = () => {
+      if (!CSS.highlights) return;
+      if (sources.size) CSS.highlights.set("tech-text-drag", new Highlight(...Array.from(sources.keys(), (index) => glyphs[index].range)));
+      else CSS.highlights.delete("tech-text-drag");
+    };
+    const restoreSource = (index: number) => {
+      const source = sources.get(index);
+      if (source) {
+        source.replaceWith(...source.childNodes);
+        dirty = true; // Rebuild live ranges after the fallback wrapper has been removed.
+      }
+      sources.delete(index);
+      returns.delete(index);
+      updateHighlight();
+      if (!sources.size) {
+        host.removeAttribute("data-tech-dragging");
+        overlay.remove();
+      }
+    };
+    const resizeOverlay = () => {
+      overlayDpr = Math.min(devicePixelRatio || 1, 2, Math.sqrt(MAX_PIXELS / (innerWidth * innerHeight)));
+      overlay.width = Math.round(innerWidth * overlayDpr);
+      overlay.height = Math.round(innerHeight * overlayDpr);
+    };
+    const liftSource = (index: number) => {
+      if (sources.has(index)) return;
+      const glyph = glyphs[index];
+      host.setAttribute("data-tech-dragging", "");
+      if (CSS.highlights) { sources.set(index, null); updateHighlight(); }
+      else {
+        const source = document.createElement("span");
+        source.style.visibility = "hidden";
+        glyph.range.surroundContents(source);
+        sources.set(index, source);
+      }
+      resizeOverlay();
+      document.body.append(overlay);
+    };
+    const returnHome = (index: number) => {
+      if (index < 0) return;
+      const glyph = glyphs[index];
+      glyph.vx = glyph.vy = 0;
+      returns.set(index, { at: performance.now(), x: glyph.dx, y: glyph.dy });
     };
     const suspend = () => {
       cancelAnimationFrame(raf);
       raf = 0;
       stopTimer();
       release();
+      for (const index of sources.keys()) restoreSource(index);
       pointer.inside = false;
       focus = -1;
       kicks.length = 0;
-      frameAlpha = 0;
       for (const glyph of glyphs) glyph.dx = glyph.dy = glyph.vx = glyph.vy = 0;
       showStatic();
     };
@@ -153,6 +202,16 @@ export function TechText() {
             const image = document.createElement("canvas");
             image.width = Math.max(1, Math.ceil(w * dpr));
             image.height = Math.max(1, Math.ceil(h * dpr));
+            const fill = document.createElement("canvas");
+            fill.width = image.width;
+            fill.height = image.height;
+            const filled = fill.getContext("2d");
+            if (filled) {
+              filled.setTransform(dpr, 0, 0, dpr, -left * dpr, -top * dpr);
+              filled.font = font;
+              filled.fillStyle = style.color;
+              filled.fillText(char, 0, 0);
+            }
             const c = image.getContext("2d");
             if (c) {
               c.setTransform(dpr, 0, 0, dpr, -left * dpr, -top * dpr);
@@ -165,12 +224,12 @@ export function TechText() {
               c.globalCompositeOperation = "destination-out";
               c.fillText(char, 0, 0);
             }
-            art = { outline: image, w, h };
+            art = { outline: image, fill, w, h };
             cache.set(key, art);
           }
           // DOM ranges preserve the real line's kerning and tracking, including word spaces.
           const origin = charRect.left - bounds.left;
-          next.push({ char, position: charPosition, line: lineIndex, art,
+          next.push({ char, position: charPosition, line: lineIndex, art, range: range.cloneRange(),
             hitBox: { x: origin, y: charRect.top - bounds.top, w: charRect.width, h: charRect.height },
             x: origin - m.actualBoundingBoxLeft, y: baseline - m.actualBoundingBoxAscent,
             w: m.actualBoundingBoxLeft + m.actualBoundingBoxRight,
@@ -184,7 +243,6 @@ export function TechText() {
       idleLetters = start < 0 ? [] : Array.from({ length: 5 }, (_, offset) =>
         next.findIndex((glyph) => glyph.position === start + offset));
       if (idleLetters.some((index) => index < 0)) idleLetters = [];
-      frameAlpha = 0;
       focus = -1;
       dirty = false;
       ready = next.length > 0;
@@ -205,27 +263,27 @@ export function TechText() {
       return best;
     };
 
-    const drawArt = (g: Glyph) => {
+    const drawArt = (g: Glyph, ctx: CanvasRenderingContext2D = baseCtx, filled = false) => {
       const art = g.art;
       ctx.globalAlpha = 1;
+      if (filled) ctx.drawImage(art.fill, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
       // Sprite coordinates are relative to the ink bounds; padding is baked in.
       ctx.drawImage(art.outline, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
     };
 
-    const drawFrame = () => {
-      if (frameAlpha < 0.002 || frameIndex < 0) return;
-      const glyph = glyphs[frameIndex];
+    const drawFrame = (glyph: Glyph, ctx: CanvasRenderingContext2D = baseCtx) => {
+      const frame = { x: glyph.x + glyph.dx - 5, y: glyph.y + glyph.dy - 5, w: glyph.w + 10, h: glyph.h + 10 };
       ctx.strokeStyle = ctx.fillStyle = accent;
       ctx.lineWidth = 1;
-      ctx.globalAlpha = frameAlpha * 0.65;
+      ctx.globalAlpha = 0.65;
       ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
-      ctx.globalAlpha = frameAlpha;
+      ctx.globalAlpha = 1;
       for (const [x, y] of [[frame.x, frame.y], [frame.x + frame.w, frame.y], [frame.x, frame.y + frame.h], [frame.x + frame.w, frame.y + frame.h]]) {
         ctx.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
       }
       const moved = Math.hypot(glyph.dx, glyph.dy) > 1;
       if (moved) {
-        ctx.globalAlpha = frameAlpha * 0.3;
+        ctx.globalAlpha = 0.3;
         ctx.setLineDash([3, 4]);
         ctx.beginPath();
         ctx.moveTo(glyph.x + glyph.w / 2, glyph.y + glyph.h / 2);
@@ -235,7 +293,7 @@ export function TechText() {
       }
       ctx.font = labelFont;
       ctx.textBaseline = "bottom";
-      ctx.globalAlpha = frameAlpha * 0.9;
+      ctx.globalAlpha = 0.9;
       const label = moved
         ? `Δ ${Math.round(glyph.dx)}, ${Math.round(-glyph.dy)}`
         : `${glyph.char} / #${glyph.position + 1} / L${glyph.line + 1}`;
@@ -246,7 +304,7 @@ export function TechText() {
     const tick = (now: number) => {
       raf = 0;
       if (!allowed()) return;
-      if (dirty) layout();
+      if (dirty && !sources.size) layout();
       if (!ready) return;
       const elapsed = Math.max(0.001, (now - last) / 1000);
       const dt = Math.min(0.032, elapsed);
@@ -256,54 +314,73 @@ export function TechText() {
         glyphs[kicks[i].index].vy -= kicks[i].strength;
         kicks.splice(i, 1);
       }
-      focus = motion.matches ? idleLetters[0] ?? -1
-        : dragging >= 0 ? dragging : pointer.inside ? hit(pointer.x, pointer.y) : idleLetters[idleIndex] ?? -1;
       let moving = kicks.length > 0;
       glyphs.forEach((g, i) => {
         if (i === dragging) {
-          const tx = Math.max(-24, Math.min(24, pointer.x - grab.x));
-          const ty = Math.max(-22, Math.min(22, pointer.y - grab.y));
-          g.dx = approach(g.dx, tx, dt, 0.025);
-          g.dy = approach(g.dy, ty, dt, 0.025);
-          moving ||= !near(g.dx, tx) || !near(g.dy, ty);
+          // No lag or cap: preserve the exact point at which the glyph was grabbed.
+          g.dx = pointer.clientX - rect.left - grab.x;
+          g.dy = pointer.clientY - rect.top - grab.y;
+        } else if (returns.has(i)) {
+          const returning = returns.get(i)!;
+          const progress = Math.min(1, (now - returning.at) / RETURN_DURATION);
+          // Time-normalized critically damped spring: long drags settle just as quickly.
+          const end = 11 * Math.exp(-10);
+          const spring = progress >= 1 ? 0 : ((1 + 10 * progress) * Math.exp(-10 * progress) - end) / (1 - end);
+          g.dx = returning.x * spring;
+          g.dy = returning.y * spring;
+          if (progress >= 1) {
+            restoreSource(i);
+            if (!returns.size && dragging < 0 && idleLetters.length) idleIndex = (idleIndex + 1) % idleLetters.length;
+          } else moving = true;
         } else if (Math.hypot(g.dx, g.dy, g.vx, g.vy) > 0.08) {
           // Substeps keep spring integration stable on slower mobile frames.
           for (let step = 0; step < 2; step++) {
-            g.vx += (-300 * g.dx - 25 * g.vx) * dt / 2;
-            g.vy += (-300 * g.dy - 25 * g.vy) * dt / 2;
+            const damping = motion.matches ? 35 : 25;
+            g.vx += (-300 * g.dx - damping * g.vx) * dt / 2;
+            g.vy += (-300 * g.dy - damping * g.vy) * dt / 2;
             g.dx += g.vx * dt / 2;
             g.dy += g.vy * dt / 2;
           }
           moving = true;
         } else { g.dx = g.dy = g.vx = g.vy = 0; }
       });
+      focus = dragging >= 0 ? dragging : motion.matches && !returns.size ? idleLetters[0] ?? -1
+        : pointer.inside ? hit(pointer.x, pointer.y) : returns.size ? -1 : idleLetters[idleIndex] ?? -1;
       // Selection is atomic: no fading old outline or frame gliding over other letters.
-      frameAlpha = focus >= 0 ? 1 : 0;
-      frameIndex = focus;
-      if (focus >= 0) {
-        const g = glyphs[focus];
-        frame = { x: g.x + g.dx - 5, y: g.y + g.dy - 5, w: g.w + 10, h: g.h + 10 };
-      }
-      const active = focus >= 0 || moving || frameAlpha > 0;
+      const active = focus >= 0 || moving;
       if (!active) {
         showStatic();
         return;
       }
-      ctx.setTransform(dpr, 0, 0, dpr, PAD * dpr, PAD * dpr);
-      ctx.clearRect(-PAD, -PAD, width, height);
-      if (focus >= 0) drawArt(glyphs[focus]);
-      drawFrame();
-      ctx.globalAlpha = 1;
+      baseCtx.setTransform(1, 0, 0, 1, 0, 0);
+      baseCtx.clearRect(0, 0, canvas.width, canvas.height);
+      baseCtx.setTransform(dpr, 0, 0, dpr, PAD * dpr, PAD * dpr);
+      if (focus >= 0 && !sources.has(focus)) {
+        drawArt(glyphs[focus]);
+        drawFrame(glyphs[focus]);
+      }
+      if (sources.size) {
+        overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
+        overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+        overlayCtx.setTransform(overlayDpr, 0, 0, overlayDpr, rect.left * overlayDpr, rect.top * overlayDpr);
+        // Each lifted letter owns its decoration; finishing one never resets the active drag.
+        for (const index of sources.keys()) {
+          drawArt(glyphs[index], overlayCtx, true);
+          drawFrame(glyphs[index], overlayCtx);
+        }
+        overlayCtx.globalAlpha = 1;
+      }
+      baseCtx.globalAlpha = 1;
       host.setAttribute("data-tech-active", "");
       if (focus >= 0) host.dataset.techTarget = String(glyphs[focus].position);
       else host.removeAttribute("data-tech-target");
-      host.style.cursor = motion.matches ? "" : dragging >= 0 ? "grabbing" : pointer.inside && focus >= 0 ? "grab" : "";
-      if (moving && !motion.matches) raf = requestAnimationFrame(tick);
+      host.style.cursor = dragging >= 0 ? "grabbing" : pointer.inside && focus >= 0 ? "grab" : "";
+      if (moving) raf = requestAnimationFrame(tick);
       schedule();
     };
 
     const schedule = () => {
-      if (timer !== undefined || !allowed() || motion.matches || pointer.inside || dragging >= 0 || !idleLetters.length) return;
+      if (timer !== undefined || !allowed() || motion.matches || pointer.inside || dragging >= 0 || returns.size || !idleLetters.length) return;
       timer = setTimeout(() => {
         timer = undefined;
         idleIndex = (idleIndex + 1) % idleLetters.length;
@@ -318,8 +395,9 @@ export function TechText() {
       tick(last);
     };
     const invalidate = () => {
-      const hovering = pointer.inside;
       dirty = true;
+      if (sources.size) { resizeOverlay(); rect = host.getBoundingClientRect(); wake(); return; }
+      const hovering = pointer.inside;
       suspend();
       pointer.inside = hovering;
       wake();
@@ -328,13 +406,17 @@ export function TechText() {
       if (rectDirty) { rect = host.getBoundingClientRect(); rectDirty = false; }
       pointer.x = e.clientX - rect.left;
       pointer.y = e.clientY - rect.top;
+      pointer.clientX = e.clientX;
+      pointer.clientY = e.clientY;
     };
     const onEnter = (e: PointerEvent) => {
       rect = host.getBoundingClientRect();
       onMove(e);
     };
     const onMove = (e: PointerEvent) => {
-      if (!allowed() || motion.matches || (captured !== null && captured !== e.pointerId)) return;
+      if (!allowed() || (captured !== null && captured !== e.pointerId)) return;
+      if (dragging < 0 && !host.contains(e.target as Node)) return;
+      if (motion.matches && dragging < 0) return;
       stopTimer();
       if (!ready) return;
       locate(e);
@@ -342,13 +424,13 @@ export function TechText() {
       wake();
     };
     const resumeIdle = () => {
-      if (pointer.inside && idleLetters.length) idleIndex = (idleIndex + 1) % idleLetters.length;
+      if (pointer.inside && !returns.size && idleLetters.length) idleIndex = (idleIndex + 1) % idleLetters.length;
       pointer.inside = false;
       wake();
     };
     const onLeave = () => { if (dragging < 0) resumeIdle(); };
     const onDown = (e: PointerEvent) => {
-      if (!allowed() || motion.matches || !e.isPrimary || e.button !== 0 || captured !== null) return;
+      if (!allowed() || !e.isPrimary || e.button !== 0 || captured !== null) return;
       stopTimer();
       if (!ready) return;
       rect = host.getBoundingClientRect();
@@ -360,6 +442,8 @@ export function TechText() {
       // Touch remains a native scrolling gesture. A stationary tap still triggers the bounce.
       if (e.pointerType !== "touch") {
         dragging = index;
+        returns.delete(index);
+        liftSource(index);
         grab.x = pointer.x - glyphs[index].dx;
         grab.y = pointer.y - glyphs[index].dy;
         glyphs[index].vx = glyphs[index].vy = 0;
@@ -369,15 +453,22 @@ export function TechText() {
       wake();
     };
     const onUp = (e: PointerEvent) => {
-      if (motion.matches || (!pointer.inside && press.index < 0 && captured === null)) return;
+      if (!pointer.inside && press.index < 0 && captured === null) return;
       if (captured !== null && captured !== e.pointerId) return;
+      const dragged = dragging;
+      if (dragged >= 0) {
+        locate(e);
+        glyphs[dragged].dx = pointer.clientX - rect.left - grab.x;
+        glyphs[dragged].dy = pointer.clientY - rect.top - grab.y;
+      }
       const index = press.index;
       const click = e.type === "pointerup" && index >= 0 && performance.now() - press.at < 450 &&
         Math.hypot(e.clientX - rect.left - press.x, e.clientY - rect.top - press.y) < 6;
       release();
+      returnHome(dragged);
       const inside = e.type !== "pointercancel" && e.pointerType !== "touch" && e.clientX >= rect.left && e.clientX <= rect.left + width - PAD * 2 &&
         e.clientY >= rect.top && e.clientY <= rect.top + height - PAD * 2;
-      if (click) {
+      if (click && dragged < 0 && !motion.matches) {
         const now = performance.now();
         for (let distance = 0; distance <= 3; distance++) {
           for (const neighbor of distance ? [index - distance, index + distance] : [index]) {
@@ -387,19 +478,35 @@ export function TechText() {
           }
         }
       }
-      if (inside) { pointer.inside = true; wake(); }
+      if (dragged >= 0) { pointer.inside = inside; wake(); }
+      else if (inside) { pointer.inside = true; wake(); }
       else resumeIdle();
     };
-    const onLostCapture = () => { if (captured !== null) { captured = null; dragging = -1; press.index = -1; wake(); } };
+    const onLostCapture = () => {
+      if (captured === null) return;
+      const index = dragging;
+      release();
+      returnHome(index);
+      pointer.inside = false;
+      wake();
+    };
     const onVisibility = () => { if (document.hidden) suspend(); else wake(); };
     const onMotion = () => {
       idleIndex = 0;
-      suspend();
+      if (!sources.size) suspend();
       wake();
     };
-    const onScroll = () => { rectDirty = true; suspend(); wake(); };
+    const onScroll = () => {
+      rectDirty = true;
+      if (sources.size) { rect = host.getBoundingClientRect(); wake(); }
+      else {
+        if (pointer.inside && idleLetters.length) idleIndex = (idleIndex + 1) % idleLetters.length;
+        suspend();
+        wake();
+      }
+    };
     host.addEventListener("pointerenter", onEnter, { passive: true });
-    host.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave, { passive: true });
     host.addEventListener("pointerdown", onDown, { passive: true });
     document.addEventListener("pointerup", onUp, { passive: true });
@@ -412,7 +519,7 @@ export function TechText() {
     resize.observe(host);
     const intersection = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (visible) wake(); else suspend();
+      if (visible || sources.size) wake(); else suspend();
     });
     intersection.observe(host);
     const theme = new MutationObserver(invalidate);
@@ -440,7 +547,7 @@ export function TechText() {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("scroll", onScroll, true);
       host.removeEventListener("pointerenter", onEnter);
-      host.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerleave", onLeave);
       host.removeEventListener("pointerdown", onDown);
       document.removeEventListener("pointerup", onUp);
