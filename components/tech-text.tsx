@@ -3,7 +3,8 @@
 import { useLayoutEffect, useRef } from "react";
 
 type Box = { x: number; y: number; w: number; h: number };
-type Art = { outline: HTMLCanvasElement; fill: HTMLCanvasElement; w: number; h: number };
+type Art = { outline: HTMLCanvasElement; fill: HTMLCanvasElement;
+  activeOutline: HTMLCanvasElement; activeFill: HTMLCanvasElement; w: number; h: number };
 type Glyph = Box & {
   char: string;
   position: number;
@@ -62,6 +63,8 @@ export function TechText() {
     let rect = { left: 0, top: 0 };
     let rectDirty = false;
     let focus = -1;
+    let highlighted = -1;
+    let highlightSource: HTMLSpanElement | null = null;
     let dragging = -1;
     const returns = new Map<number, Return>();
     const sources = new Map<number, HTMLSpanElement>();
@@ -77,9 +80,16 @@ export function TechText() {
       clearTimeout(timer);
       timer = undefined;
     };
+    const clearHighlight = () => {
+      highlightSource?.replaceWith(...highlightSource.childNodes);
+      highlightSource = null;
+      highlighted = -1;
+      if (!sources.size) heading.normalize();
+    };
     const showStatic = () => {
       baseCtx.setTransform(1, 0, 0, 1, 0, 0);
       baseCtx.clearRect(0, 0, canvas.width, canvas.height);
+      clearHighlight();
       host.removeAttribute("data-tech-active");
       host.removeAttribute("data-tech-target");
       host.style.cursor = "";
@@ -126,6 +136,7 @@ export function TechText() {
     };
     const liftSource = (index: number) => {
       if (sources.has(index)) return;
+      clearHighlight();
       const glyph = glyphs[index];
       const range = sourceRange(glyph.position);
       if (!range) return;
@@ -137,6 +148,46 @@ export function TechText() {
       sources.set(index, source);
       resizeOverlay();
       document.body.append(overlay);
+    };
+    const highlight = (index: number) => {
+      const next = sources.has(index) ? -1 : index;
+      if (next === highlighted) return;
+      clearHighlight();
+      if (next < 0) return;
+      const range = sourceRange(glyphs[next].position);
+      if (!range) return;
+      highlightSource = document.createElement("span");
+      highlightSource.setAttribute("data-tech-highlight", "");
+      range.surroundContents(highlightSource);
+      highlighted = next;
+    };
+    const refreshPalette = () => {
+      const root = getComputedStyle(document.documentElement);
+      accent = root.getPropertyValue("--muted").trim();
+      const activeColor = root.getPropertyValue("--tech-letter-active").trim();
+      const colors = Array.from(heading.querySelectorAll<HTMLElement>("[data-tech-line]"), (line) => getComputedStyle(line).color);
+      const tint = (image: HTMLCanvasElement, source: HTMLCanvasElement, color: string) => {
+        const context = image.getContext("2d")!;
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        if (image !== source) {
+          context.clearRect(0, 0, image.width, image.height);
+          context.drawImage(source, 0, 0);
+        }
+        context.globalCompositeOperation = "source-in";
+        context.fillStyle = color;
+        context.fillRect(0, 0, image.width, image.height);
+        context.globalCompositeOperation = "source-over";
+      };
+      const seen = new Set<Art>();
+      for (const glyph of glyphs) {
+        if (seen.has(glyph.art)) continue;
+        seen.add(glyph.art);
+        const art = glyph.art;
+        tint(art.fill, art.fill, colors[glyph.line]);
+        tint(art.outline, art.outline, colors[glyph.line]);
+        tint(art.activeFill, art.fill, activeColor);
+        tint(art.activeOutline, art.outline, activeColor);
+      }
     };
     const returnHome = (index: number) => {
       if (index < 0) return;
@@ -231,7 +282,11 @@ export function TechText() {
               c.globalCompositeOperation = "destination-out";
               c.fillText(char, 0, 0);
             }
-            art = { outline: image, fill, w, h };
+            const activeFill = document.createElement("canvas");
+            const activeOutline = document.createElement("canvas");
+            activeFill.width = activeOutline.width = image.width;
+            activeFill.height = activeOutline.height = image.height;
+            art = { outline: image, fill, activeFill, activeOutline, w, h };
             cache.set(key, art);
           }
           const origin = charRect.left - bounds.left;
@@ -246,6 +301,7 @@ export function TechText() {
         range.detach();
       }
       glyphs = next;
+      refreshPalette();
       for (let index = 0; index < next.length; index++) {
         const glyph = next[index];
         const previous = next[index - 1];
@@ -277,11 +333,11 @@ export function TechText() {
       return best;
     };
 
-    const drawArt = (g: Glyph, ctx: CanvasRenderingContext2D = baseCtx, filled = false) => {
+    const drawArt = (g: Glyph, ctx: CanvasRenderingContext2D = baseCtx, filled = false, active = true) => {
       const art = g.art;
       ctx.globalAlpha = 1;
-      if (filled) ctx.drawImage(art.fill, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
-      ctx.drawImage(art.outline, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
+      if (filled) ctx.drawImage(active ? art.activeFill : art.fill, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
+      ctx.drawImage(active ? art.activeOutline : art.outline, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
     };
 
     const drawFrame = (glyph: Glyph, ctx: CanvasRenderingContext2D = baseCtx) => {
@@ -357,6 +413,7 @@ export function TechText() {
       });
       focus = dragging >= 0 ? dragging : motion.matches && !returns.size ? idleLetters[0] ?? -1
         : pointer.inside ? hit(pointer.x, pointer.y) : returns.size ? -1 : idleLetters[idleIndex] ?? -1;
+      highlight(focus);
       const active = focus >= 0 || moving;
       if (!active) {
         showStatic();
@@ -374,7 +431,7 @@ export function TechText() {
         overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
         overlayCtx.setTransform(overlayDpr, 0, 0, overlayDpr, rect.left * overlayDpr, rect.top * overlayDpr);
         for (const index of sources.keys()) {
-          drawArt(glyphs[index], overlayCtx, true);
+          drawArt(glyphs[index], overlayCtx, true, index === focus);
           drawFrame(glyphs[index], overlayCtx);
         }
         overlayCtx.globalAlpha = 1;
@@ -405,7 +462,7 @@ export function TechText() {
     };
     const invalidate = () => {
       dirty = true;
-      if (sources.size) { resizeOverlay(); rect = host.getBoundingClientRect(); wake(); return; }
+      if (sources.size) { refreshPalette(); resizeOverlay(); rect = host.getBoundingClientRect(); wake(); return; }
       const hovering = pointer.inside;
       suspend();
       pointer.inside = hovering;
