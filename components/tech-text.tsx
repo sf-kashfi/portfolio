@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 type Box = { x: number; y: number; w: number; h: number };
 type Art = { outline: HTMLCanvasElement; w: number; h: number };
@@ -19,9 +19,8 @@ type Kick = { index: number; at: number; strength: number };
 
 const PAD = 32;
 const MAX_PIXELS = 1_500_000;
-const DEMO_GLIDE = 1.25;
-// Module lifetime is one document load, so React remounts cannot replay the demo.
-const demonstration = { elapsed: 0, finished: false };
+const IDLE_STEP = 600;
+const IDLE_PAUSE = 350;
 const approach = (value: number, target: number, dt: number, lag = 0.075) =>
   target + (value - target) * Math.exp(-dt / lag);
 const near = (value: number, target: number) => Math.abs(value - target) < 0.025;
@@ -30,7 +29,7 @@ const near = (value: number, target: number) => Math.abs(value - target) < 0.025
 export function TechText() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const host = canvas?.parentElement;
     const heading = host?.querySelector("h1");
@@ -40,14 +39,13 @@ export function TechText() {
     if (!ctx || !probe) return;
 
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const touch = matchMedia("(hover: none) and (pointer: coarse)").matches;
-    if (motion.matches) demonstration.finished = true;
     let alive = true;
     let visible = false;
     let ready = false;
-    let fontsReady = false;
     let dirty = true;
     let raf = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let idleIndex = 0;
     let last = 0;
     let dpr = 1;
     let width = 0;
@@ -56,7 +54,7 @@ export function TechText() {
     let accent = "";
     let labelFont = "";
     let glyphs: Glyph[] = [];
-    let demoLetters: number[] = [];
+    let idleLetters: number[] = [];
     let rect = { left: 0, top: 0 };
     let rectDirty = false;
     let focus = -1;
@@ -66,12 +64,15 @@ export function TechText() {
     let frameAlpha = 0;
     let frame: Box = { x: 0, y: 0, w: 0, h: 0 };
     const pointer = { x: 0, y: 0, inside: false };
-    const movement = { x: 0, y: 0, known: false };
     const grab = { x: 0, y: 0 };
     const press = { x: 0, y: 0, at: 0, index: -1 };
     const kicks: Kick[] = [];
 
-    const allowed = () => alive && visible && !document.hidden && !motion.matches;
+    const allowed = () => alive && visible && !document.hidden;
+    const stopTimer = () => {
+      clearTimeout(timer);
+      timer = undefined;
+    };
     const showStatic = () => {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -88,15 +89,13 @@ export function TechText() {
     const suspend = () => {
       cancelAnimationFrame(raf);
       raf = 0;
+      stopTimer();
       release();
       pointer.inside = false;
       focus = -1;
       kicks.length = 0;
-      // Preserve automatic playback progress while hidden/offscreen. User motion can reset.
-      if (demonstration.finished) {
-        frameAlpha = 0;
-        for (const glyph of glyphs) glyph.dx = glyph.dy = glyph.vx = glyph.vy = 0;
-      }
+      frameAlpha = 0;
+      for (const glyph of glyphs) glyph.dx = glyph.dy = glyph.vx = glyph.vy = 0;
       showStatic();
     };
 
@@ -181,7 +180,10 @@ export function TechText() {
         range.detach();
       }
       glyphs = next;
-      demoLetters = next.flatMap((glyph, index) => glyph.line === 0 ? [index] : []).slice(0, touch ? 2 : 6);
+      const start = heading.textContent?.search(/\bclear\b/) ?? -1;
+      idleLetters = start < 0 ? [] : Array.from({ length: 5 }, (_, offset) =>
+        next.findIndex((glyph) => glyph.position === start + offset));
+      if (idleLetters.some((index) => index < 0)) idleLetters = [];
       frameAlpha = 0;
       focus = -1;
       dirty = false;
@@ -244,25 +246,18 @@ export function TechText() {
     const tick = (now: number) => {
       raf = 0;
       if (!allowed()) return;
-      if (!fontsReady) return;
       if (dirty) layout();
       if (!ready) return;
       const elapsed = Math.max(0.001, (now - last) / 1000);
       const dt = Math.min(0.032, elapsed);
       last = now;
-      const demoOn = !demonstration.finished;
-      const glideDuration = touch ? 1.1 : DEMO_GLIDE;
-      if (demoOn) demonstration.elapsed += elapsed;
-      const demonstrating = demoOn && demonstration.elapsed < glideDuration && demoLetters.length > 0;
-      const demoPosition = Math.min(1, demonstration.elapsed / glideDuration) * (demoLetters.length - 1);
       for (let i = kicks.length - 1; i >= 0; i--) {
         if (now < kicks[i].at) continue;
         glyphs[kicks[i].index].vy -= kicks[i].strength;
         kicks.splice(i, 1);
       }
-      focus = demonstrating
-        ? demoLetters[Math.round(demoPosition)]
-        : dragging >= 0 ? dragging : pointer.inside ? hit(pointer.x, pointer.y) : -1;
+      focus = motion.matches ? idleLetters[0] ?? -1
+        : dragging >= 0 ? dragging : pointer.inside ? hit(pointer.x, pointer.y) : idleLetters[idleIndex] ?? -1;
       let moving = kicks.length > 0;
       glyphs.forEach((g, i) => {
         if (i === dragging) {
@@ -291,7 +286,6 @@ export function TechText() {
       }
       const active = focus >= 0 || moving || frameAlpha > 0;
       if (!active) {
-        if (demoOn) demonstration.finished = true;
         showStatic();
         return;
       }
@@ -303,14 +297,33 @@ export function TechText() {
       host.setAttribute("data-tech-active", "");
       if (focus >= 0) host.dataset.techTarget = String(glyphs[focus].position);
       else host.removeAttribute("data-tech-target");
-      host.style.cursor = demoOn ? "" : dragging >= 0 ? "grabbing" : focus >= 0 ? "grab" : "";
-      if (demoOn || moving) raf = requestAnimationFrame(tick);
+      host.style.cursor = motion.matches ? "" : dragging >= 0 ? "grabbing" : pointer.inside && focus >= 0 ? "grab" : "";
+      if (moving && !motion.matches) raf = requestAnimationFrame(tick);
+      schedule();
     };
 
-    const wake = () => {
-      if (!raf && allowed()) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    const schedule = () => {
+      if (timer !== undefined || !allowed() || motion.matches || pointer.inside || dragging >= 0 || !idleLetters.length) return;
+      timer = setTimeout(() => {
+        timer = undefined;
+        idleIndex = (idleIndex + 1) % idleLetters.length;
+        wake();
+      }, IDLE_STEP + (idleIndex === idleLetters.length - 1 ? IDLE_PAUSE : 0));
     };
-    const invalidate = () => { dirty = true; suspend(); wake(); };
+    const wake = () => {
+      if (!allowed()) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+      last = performance.now();
+      tick(last);
+    };
+    const invalidate = () => {
+      const hovering = pointer.inside;
+      dirty = true;
+      suspend();
+      pointer.inside = hovering;
+      wake();
+    };
     const locate = (e: PointerEvent) => {
       if (rectDirty) { rect = host.getBoundingClientRect(); rectDirty = false; }
       pointer.x = e.clientX - rect.left;
@@ -318,33 +331,31 @@ export function TechText() {
     };
     const onEnter = (e: PointerEvent) => {
       rect = host.getBoundingClientRect();
-      movement.x = e.clientX; movement.y = e.clientY; movement.known = true;
-      // Enter events also fire beneath a parked cursor after layout/scroll changes.
-      if (demonstration.finished) onMove(e);
+      onMove(e);
     };
     const onMove = (e: PointerEvent) => {
-      if (!allowed() || (captured !== null && captured !== e.pointerId)) return;
-      const intentional = Math.hypot(e.movementX, e.movementY) > 0 ||
-        (movement.known && Math.hypot(e.clientX - movement.x, e.clientY - movement.y) >= 2);
-      if (!demonstration.finished && !intentional) return;
-      movement.x = e.clientX; movement.y = e.clientY; movement.known = true;
-      demonstration.finished = true;
+      if (!allowed() || motion.matches || (captured !== null && captured !== e.pointerId)) return;
+      stopTimer();
       if (!ready) return;
       locate(e);
       pointer.inside = true;
       wake();
     };
-    const onLeave = () => { if (dragging < 0) { pointer.inside = false; wake(); } };
-    const onDown = (e: PointerEvent) => {
-      if (!allowed() || !e.isPrimary || e.button !== 0 || captured !== null) return;
-      demonstration.finished = true;
+    const resumeIdle = () => {
+      if (pointer.inside && idleLetters.length) idleIndex = (idleIndex + 1) % idleLetters.length;
+      pointer.inside = false;
       wake();
+    };
+    const onLeave = () => { if (dragging < 0) resumeIdle(); };
+    const onDown = (e: PointerEvent) => {
+      if (!allowed() || motion.matches || !e.isPrimary || e.button !== 0 || captured !== null) return;
+      stopTimer();
       if (!ready) return;
       rect = host.getBoundingClientRect();
       locate(e);
       const index = hit(pointer.x, pointer.y);
-      if (index < 0) return;
       pointer.inside = true;
+      if (index < 0) { wake(); return; }
       press.x = pointer.x; press.y = pointer.y; press.at = performance.now(); press.index = index;
       // Touch remains a native scrolling gesture. A stationary tap still triggers the bounce.
       if (e.pointerType !== "touch") {
@@ -358,12 +369,13 @@ export function TechText() {
       wake();
     };
     const onUp = (e: PointerEvent) => {
+      if (motion.matches || (!pointer.inside && press.index < 0 && captured === null)) return;
       if (captured !== null && captured !== e.pointerId) return;
       const index = press.index;
       const click = e.type === "pointerup" && index >= 0 && performance.now() - press.at < 450 &&
         Math.hypot(e.clientX - rect.left - press.x, e.clientY - rect.top - press.y) < 6;
       release();
-      pointer.inside = e.pointerType !== "touch" && e.clientX >= rect.left && e.clientX <= rect.left + width - PAD * 2 &&
+      const inside = e.type !== "pointercancel" && e.pointerType !== "touch" && e.clientX >= rect.left && e.clientX <= rect.left + width - PAD * 2 &&
         e.clientY >= rect.top && e.clientY <= rect.top + height - PAD * 2;
       if (click) {
         const now = performance.now();
@@ -375,22 +387,23 @@ export function TechText() {
           }
         }
       }
-      wake();
+      if (inside) { pointer.inside = true; wake(); }
+      else resumeIdle();
     };
     const onLostCapture = () => { if (captured !== null) { captured = null; dragging = -1; press.index = -1; wake(); } };
     const onVisibility = () => { if (document.hidden) suspend(); else wake(); };
     const onMotion = () => {
-      if (motion.matches) demonstration.finished = true;
+      idleIndex = 0;
       suspend();
-      if (!motion.matches) { dirty = true; wake(); }
+      wake();
     };
-    const onScroll = () => { rectDirty = true; suspend(); if (!demonstration.finished) wake(); };
+    const onScroll = () => { rectDirty = true; suspend(); wake(); };
     host.addEventListener("pointerenter", onEnter, { passive: true });
     host.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave, { passive: true });
     host.addEventListener("pointerdown", onDown, { passive: true });
-    host.addEventListener("pointerup", onUp, { passive: true });
-    host.addEventListener("pointercancel", onUp, { passive: true });
+    document.addEventListener("pointerup", onUp, { passive: true });
+    document.addEventListener("pointercancel", onUp, { passive: true });
     host.addEventListener("lostpointercapture", onLostCapture);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("scroll", onScroll, { passive: true, capture: true });
@@ -407,11 +420,16 @@ export function TechText() {
     // Load the existing mono face before drawing labels: otherwise its first use can
     // trigger a late font event in the middle of a drag. Static text stays visible.
     const monoFamily = getComputedStyle(document.body).getPropertyValue("--font-geist-mono").trim() || "monospace";
-    const onFonts = () => { if (alive) { fontsReady = true; invalidate(); } };
+    const onFonts = () => { if (alive) invalidate(); };
     Promise.all([
       document.fonts.ready,
       document.fonts.load(`10px ${monoFamily}`, "Δ 0123456789 / L × I turn complex systems into clear products."),
     ]).then(onFonts, onFonts);
+
+    // Paint c synchronously on mount, before waiting for fonts or the first observer callback.
+    const bounds = host.getBoundingClientRect();
+    visible = bounds.bottom > 0 && bounds.top < innerHeight && bounds.right > 0 && bounds.left < innerWidth;
+    wake();
 
     return () => {
       alive = false;
@@ -425,8 +443,8 @@ export function TechText() {
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerleave", onLeave);
       host.removeEventListener("pointerdown", onDown);
-      host.removeEventListener("pointerup", onUp);
-      host.removeEventListener("pointercancel", onUp);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
       host.removeEventListener("lostpointercapture", onLostCapture);
     };
   }, []);

@@ -750,7 +750,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
   @media (prefers-reduced-motion: reduce) {
     .tech-text[data-tech-active] h1 { opacity: 1; }
-    .tech-text[data-tech-active] .tech-text-canvas { visibility: hidden; }
     .tech-text[data-tech-ready] { user-select: text; -webkit-user-select: text; }
   }
 
