@@ -727,7 +727,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
     margin: 0;
     font-size: clamp(2rem, 12.3cqi, 5.15rem);
     font-weight: 720;
-    letter-spacing: -0.055em;
+    letter-spacing: -0.015em;
     line-height: 1.08;
     color: var(--text);
     transition: none !important; /* Keep the readable text stable under the decorative canvas. */

@@ -11,6 +11,8 @@ type Glyph = Box & {
   hitBox: Box;
   art: Art;
   range: Range;
+  frameLeft: number;
+  frameRight: number;
   dx: number;
   dy: number;
   vx: number;
@@ -230,6 +232,7 @@ export function TechText() {
           // DOM ranges preserve the real line's kerning and tracking, including word spaces.
           const origin = charRect.left - bounds.left;
           next.push({ char, position: charPosition, line: lineIndex, art, range: range.cloneRange(),
+            frameLeft: 5, frameRight: 5,
             hitBox: { x: origin, y: charRect.top - bounds.top, w: charRect.width, h: charRect.height },
             x: origin - m.actualBoundingBoxLeft, y: baseline - m.actualBoundingBoxAscent,
             w: m.actualBoundingBoxLeft + m.actualBoundingBoxRight,
@@ -239,6 +242,15 @@ export function TechText() {
         range.detach();
       }
       glyphs = next;
+      // Fit horizontal decoration into the real tracked gaps, especially around narrow glyphs.
+      for (let index = 0; index < next.length; index++) {
+        const glyph = next[index];
+        const previous = next[index - 1];
+        const following = next[index + 1];
+        const sameRow = (other: Glyph | undefined) => other && Math.abs(other.hitBox.y - glyph.hitBox.y) < 1;
+        if (sameRow(previous)) glyph.frameLeft = Math.max(0, Math.min(5, (glyph.x - previous.x - previous.w) / 2));
+        if (sameRow(following)) glyph.frameRight = Math.max(0, Math.min(5, (following.x - glyph.x - glyph.w) / 2));
+      }
       const start = heading.textContent?.search(/\bclear\b/) ?? -1;
       idleLetters = start < 0 ? [] : Array.from({ length: 5 }, (_, offset) =>
         next.findIndex((glyph) => glyph.position === start + offset));
@@ -272,14 +284,16 @@ export function TechText() {
     };
 
     const drawFrame = (glyph: Glyph, ctx: CanvasRenderingContext2D = baseCtx) => {
-      const frame = { x: glyph.x + glyph.dx - 5, y: glyph.y + glyph.dy - 5, w: glyph.w + 10, h: glyph.h + 10 };
+      const frame = { x: glyph.x + glyph.dx - glyph.frameLeft, y: glyph.y + glyph.dy - 5,
+        w: glyph.w + glyph.frameLeft + glyph.frameRight, h: glyph.h + 10 };
       ctx.strokeStyle = ctx.fillStyle = accent;
       ctx.lineWidth = 1;
       ctx.globalAlpha = 0.65;
       ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
       ctx.globalAlpha = 1;
-      for (const [x, y] of [[frame.x, frame.y], [frame.x + frame.w, frame.y], [frame.x, frame.y + frame.h], [frame.x + frame.w, frame.y + frame.h]]) {
-        ctx.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
+      for (const [x, y] of [[frame.x, frame.y], [frame.x + frame.w - 4, frame.y], [frame.x, frame.y + frame.h], [frame.x + frame.w - 4, frame.y + frame.h]]) {
+        // Inset the marks horizontally so their outer edges cannot reach the next letter.
+        ctx.fillRect(x, Math.round(y) - 2, 4, 4);
       }
       const moved = Math.hypot(glyph.dx, glyph.dy) > 1;
       if (moved) {
@@ -517,6 +531,7 @@ export function TechText() {
     motion.addEventListener("change", onMotion);
     const resize = new ResizeObserver(invalidate);
     resize.observe(host);
+    resize.observe(heading);
     const intersection = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (visible || sources.size) wake(); else suspend();
@@ -528,6 +543,7 @@ export function TechText() {
     // trigger a late font event in the middle of a drag. Static text stays visible.
     const monoFamily = getComputedStyle(document.body).getPropertyValue("--font-geist-mono").trim() || "monospace";
     const onFonts = () => { if (alive) invalidate(); };
+    document.fonts.addEventListener("loadingdone", onFonts);
     Promise.all([
       document.fonts.ready,
       document.fonts.load(`10px ${monoFamily}`, "Δ 0123456789 / L × I turn complex systems into clear products."),
@@ -544,6 +560,7 @@ export function TechText() {
       host.removeAttribute("data-tech-ready");
       resize.disconnect(); intersection.disconnect(); theme.disconnect();
       motion.removeEventListener("change", onMotion);
+      document.fonts.removeEventListener("loadingdone", onFonts);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("scroll", onScroll, true);
       host.removeEventListener("pointerenter", onEnter);
