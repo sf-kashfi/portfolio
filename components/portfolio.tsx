@@ -25,11 +25,11 @@ import {
   Hand,
   Sun,
   X,
-  Zap,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { AccordionGallery } from "@/components/accordion-gallery";
+import { HeroVisual } from "@/components/hero-visual";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -228,52 +228,6 @@ function Header() {
         </AnimatePresence>
       </header>
     </>
-  );
-}
-
-function HeroVisual() {
-  const reduceMotion = useReducedMotion();
-  return (
-    <div
-      className={cn(
-        "hero-visual",
-        "min-h-[300px] sm:min-h-[380px] md:min-h-[460px] lg:min-h-[560px]",
-      )}
-      aria-label="Frontend engineering workspace visualization"
-    >
-      <div className="visual-grid" />
-      <div className="visual-heading">
-        <span>Engineering workspace</span>
-        <strong>Designing dependable product systems</strong>
-      </div>
-      <motion.div
-        className="visual-window window-primary"
-        animate={reduceMotion ? undefined : { y: [0, -6, 0], rotate: [-1.5, -0.5, -1.5] }}
-        transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-      >
-        <div className="window-bar"><i /><i /><i /><span>product-system.tsx</span></div>
-        <div className="workspace-title"><small>Architecture</small><strong>Complexity, composed.</strong></div>
-        <div className="code-line long" />
-        <div className="code-line medium" />
-        <div className="code-line short" />
-        <div className="mini-panels">
-          <span><b>UI</b><small>Accessible</small></span>
-          <span><b>DX</b><small>Typed</small></span>
-          <span><b>QA</b><small>Tested</small></span>
-        </div>
-      </motion.div>
-      <motion.div
-        className="visual-window window-secondary"
-        animate={reduceMotion ? undefined : { y: [0, 7, 0], x: [0, -3, 0] }}
-        transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
-      >
-        <div className="signal-row"><span className="live-dot" /> SYSTEM HEALTH</div>
-        <div className="chart-bars">{[48, 72, 58, 88, 68, 96, 76].map((h, index) => <i key={`${h}-${index}`} style={{ height: `${h}%` }} />)}</div>
-      </motion.div>
-      <div className={cn("visual-orbit orbit-one", "hidden sm:grid")}><span>React</span></div>
-      <div className={cn("visual-orbit orbit-two", "hidden sm:grid")}><span>TS</span></div>
-      <div className="visual-badge"><Zap size={14} /> Performance-minded</div>
-    </div>
   );
 }
 

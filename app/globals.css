@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../components/face/portrait.css";
 
 /* Clay portfolio — Tailwind-first, mobile-first ------------------------------- */
 
