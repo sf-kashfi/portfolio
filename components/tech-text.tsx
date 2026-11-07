@@ -4,7 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 
 type Box = { x: number; y: number; w: number; h: number };
 type Art = { outline: HTMLCanvasElement; fill: HTMLCanvasElement;
-  activeOutline: HTMLCanvasElement; activeFill: HTMLCanvasElement; w: number; h: number };
+  activeOutline: HTMLCanvasElement; activeFill: HTMLCanvasElement;
+  homeOutline: HTMLCanvasElement; w: number; h: number };
 type Glyph = Box & {
   char: string;
   position: number;
@@ -187,6 +188,7 @@ export function TechText() {
         tint(art.outline, art.outline, colors[glyph.line]);
         tint(art.activeFill, art.fill, activeColor);
         tint(art.activeOutline, art.outline, activeColor);
+        tint(art.homeOutline, art.homeOutline, accent);
       }
     };
     const returnHome = (index: number) => {
@@ -278,15 +280,26 @@ export function TechText() {
               c.lineWidth = 1.6;
               c.setLineDash([3, 2.2]);
               c.strokeText(char, 0, 0);
-              // Cut only the sprite's interior, never the heading or the shared overlay.
               c.globalCompositeOperation = "destination-out";
               c.fillText(char, 0, 0);
+            }
+            const homeOutline = document.createElement("canvas");
+            homeOutline.width = image.width;
+            homeOutline.height = image.height;
+            const home = homeOutline.getContext("2d");
+            if (home) {
+              home.setTransform(dpr, 0, 0, dpr, -left * dpr, -top * dpr);
+              home.font = font;
+              home.strokeStyle = accent;
+              home.lineWidth = 1;
+              home.setLineDash([2, 2]);
+              home.strokeText(char, 0, 0);
             }
             const activeFill = document.createElement("canvas");
             const activeOutline = document.createElement("canvas");
             activeFill.width = activeOutline.width = image.width;
             activeFill.height = activeOutline.height = image.height;
-            art = { outline: image, fill, activeFill, activeOutline, w, h };
+            art = { outline: image, fill, activeFill, activeOutline, homeOutline, w, h };
             cache.set(key, art);
           }
           const origin = charRect.left - bounds.left;
@@ -338,6 +351,10 @@ export function TechText() {
       ctx.globalAlpha = 1;
       if (filled) ctx.drawImage(active ? art.activeFill : art.fill, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
       ctx.drawImage(active ? art.activeOutline : art.outline, g.x - 4 + g.dx, g.y - 4 + g.dy, art.w, art.h);
+    };
+    const drawHome = (glyph: Glyph) => {
+      overlayCtx.globalAlpha = 0.55;
+      overlayCtx.drawImage(glyph.art.homeOutline, glyph.x - 4, glyph.y - 4, glyph.art.w, glyph.art.h);
     };
 
     const drawFrame = (glyph: Glyph, ctx: CanvasRenderingContext2D = baseCtx) => {
@@ -430,6 +447,7 @@ export function TechText() {
         overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
         overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
         overlayCtx.setTransform(overlayDpr, 0, 0, overlayDpr, rect.left * overlayDpr, rect.top * overlayDpr);
+        for (const index of sources.keys()) drawHome(glyphs[index]);
         for (const index of sources.keys()) {
           drawArt(glyphs[index], overlayCtx, true, index === focus);
           drawFrame(glyphs[index], overlayCtx);
