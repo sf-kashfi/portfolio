@@ -1,4 +1,4 @@
-import { registration, rig, type Expression } from "./portrait-rig";
+import { insidePortraitMask, registration, rig, type Expression } from "./portrait-rig";
 import { fragmentShader, vertexShader } from "./shaders";
 
 const GRID = 128;
@@ -42,7 +42,7 @@ export class PortraitEngine {
     this.gl = gl;
     try {
       this.program = this.compile();
-      for (const name of ["uView", "uStage", "uGrab[0]", "uJolt", "uA", "uB", "uMix", "uDisc", "uCheeks", "uFace", "uNose", "uFlush"]) {
+      for (const name of ["uView", "uStage", "uPortrait", "uGrab[0]", "uJolt", "uA", "uB", "uMix", "uDisc", "uCheeks", "uFace", "uNose", "uFlush"]) {
         this.uniforms[name] = gl.getUniformLocation(this.program, name);
       }
       this.createMesh();
@@ -134,7 +134,6 @@ export class PortraitEngine {
 
   private opaque(u: number, v: number) {
     if (u < 0 || v < 0 || u >= 1 || v >= 1) return false;
-    if (v > rig.disc.y && Math.hypot(u - rig.disc.x, v - rig.disc.y) > rig.disc.r) return false;
     return this.alpha[(Math.floor(v * ALPHA_SIZE) * ALPHA_SIZE + Math.floor(u * ALPHA_SIZE)) * 4 + 3] > 160;
   }
 
@@ -214,7 +213,9 @@ export class PortraitEngine {
   }
 
   private deform(u: number, v: number): [number, number] {
-    let x = u + this.jolt.x, y = v + this.jolt.y;
+    const portrait = rig.portrait;
+    let x = portrait.x + (u + this.jolt.x) * portrait.scale;
+    let y = portrait.y + (v + this.jolt.y) * portrait.scale;
     for (const s of this.slots) {
       if (!s.live) continue;
       const sigma = 0.064 * (1 + 0.4 * Math.hypot(s.x, s.y));
@@ -228,8 +229,11 @@ export class PortraitEngine {
   pick(px: number, py: number): Point | null {
     const x = (px - this.stage.x) / this.stage.size;
     const y = (py - this.stage.y) / this.stage.size;
+    if (!insidePortraitMask(x, y)) return null;
     if (!this.slots.some((s) => s.live)) {
-      const u = x - this.jolt.x, v = y - this.jolt.y;
+      const portrait = rig.portrait;
+      const u = (x - portrait.x) / portrait.scale - this.jolt.x;
+      const v = (y - portrait.y) / portrait.scale - this.jolt.y;
       return this.opaque(u, v) ? { u, v } : null;
     }
     const n = GRID + 1;
@@ -268,7 +272,9 @@ export class PortraitEngine {
     const s = this.slots.find((slot) => slot.pointer === pointer);
     if (!s) return;
     const { x: left, y: top, size } = this.stage;
-    const ax = left + s.u * size, ay = top + s.v * size;
+    const portrait = rig.portrait;
+    const ax = left + (portrait.x + s.u * portrait.scale) * size;
+    const ay = top + (portrait.y + s.v * portrait.scale) * size;
     const x = (Math.min(this.view.w - 8, Math.max(8, ax + dx)) - ax) / size;
     const y = (Math.min(this.view.h - 8, Math.max(8, ay + dy)) - ay) / size;
     const length = Math.hypot(x, y);
@@ -379,6 +385,7 @@ export class PortraitEngine {
     gl.useProgram(this.program);
     gl.uniform2f(u.uView, this.view.w, this.view.h);
     gl.uniform3f(u.uStage, this.stage.x, this.stage.y, this.stage.size);
+    gl.uniform3f(u.uPortrait, rig.portrait.x, rig.portrait.y, rig.portrait.scale);
     this.grabs.fill(0);
     this.slots.forEach((s, i) => { if (s.live) this.grabs.set([s.u, s.v, s.x, s.y], i * 4); });
     gl.uniform4fv(u["uGrab[0]"], this.grabs);

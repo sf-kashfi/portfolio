@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { expressions, faceSource, grabExpression, releaseExpressions, rig, type Expression } from "./face/portrait-rig";
+import { expressions, faceSource, grabExpression, portraitMaskPath, releaseExpressions, rig, type Expression } from "./face/portrait-rig";
 import type { PortraitEngine } from "./face/engine";
 
 const BLEED = 0.35;
@@ -12,6 +12,7 @@ export function HeroVisual() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hitRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
+  const hitClipRef = useRef<SVGClipPathElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const moodRef = useRef<HTMLSpanElement>(null);
   const patienceRef = useRef<HTMLSpanElement>(null);
@@ -59,6 +60,7 @@ export function HeroVisual() {
       if (!width || !height) return;
       hit.setAttribute("viewBox", `0 0 ${width} ${height}`);
       path.setAttribute("transform", `translate(${-width * BLEED} ${-height * BLEED})`);
+      hitClipRef.current!.setAttribute("transform", `translate(${width * 0.04} ${height * 0.04}) scale(${width * 0.92 / 1000})`);
       engine?.resize(width * (1 + BLEED * 2), height * (1 + BLEED * 2), {
         x: width * (BLEED + 0.04), y: height * (BLEED + 0.04), size: width * 0.92,
       });
@@ -300,13 +302,18 @@ export function HeroVisual() {
       <div className="face-stage pointer-events-none absolute inset-[4%]">
         <div className="face-disc absolute rounded-full" style={{ left: `${(rig.disc.x - rig.disc.r) * 100}%`, top: `${(rig.disc.y - rig.disc.r) * 100}%`, width: `${rig.disc.r * 200}%`, height: `${rig.disc.r * 200}%` }} />
         <svg className="face-static absolute inset-0 h-full w-full" viewBox="0 0 1000 1000" role="img" aria-label="Portrait of Fatemeh Kashfi">
-          <defs><clipPath id={clipId}><rect width="1000" height={rig.disc.y * 1000} /><circle cx={rig.disc.x * 1000} cy={rig.disc.y * 1000} r={rig.disc.r * 1000} /></clipPath></defs>
-          <image href={faceSource("base")} width="1000" height="1000" clipPath={`url(#${clipId})`} />
+          <defs><clipPath id={clipId} clipPathUnits="userSpaceOnUse"><path d={portraitMaskPath()} /></clipPath></defs>
+          <g clipPath={`url(#${clipId})`}>
+            <image href={faceSource("base")} x={rig.portrait.x * 1000} y={rig.portrait.y * 1000} width={rig.portrait.scale * 1000} height={rig.portrait.scale * 1000} />
+          </g>
         </svg>
       </div>
       <canvas ref={canvasRef} className="face-canvas pointer-events-none absolute" aria-hidden="true" />
       <svg ref={hitRef} className="face-hit pointer-events-none absolute inset-0 h-full w-full overflow-hidden" aria-hidden="true">
-        <path ref={pathRef} fill="transparent" fillRule="evenodd" className="face-hit-path" />
+        <defs><clipPath ref={hitClipRef} id={`${clipId}-hit`} clipPathUnits="userSpaceOnUse"><path d={portraitMaskPath()} /></clipPath></defs>
+        <g clipPath={`url(#${clipId}-hit)`}>
+          <path ref={pathRef} fill="transparent" fillRule="evenodd" className="face-hit-path" />
+        </g>
       </svg>
       <div className="face-hint pointer-events-none absolute right-[1%] top-[14%] -rotate-6" aria-hidden="true">
         <span>Pull my face</span>

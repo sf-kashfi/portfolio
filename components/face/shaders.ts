@@ -2,30 +2,34 @@ export const vertexShader = `#version 300 es
 in vec2 aUv;
 uniform vec2 uView;
 uniform vec3 uStage;
+uniform vec3 uPortrait;
 uniform vec4 uGrab[4];
 uniform vec2 uJolt;
 out vec2 vUv;
+out vec2 vStage;
 out float vStretch;
 void main() {
-  vec2 p = uStage.xy + (aUv + uJolt) * uStage.z;
+  vec2 position = uPortrait.xy + (aUv + uJolt) * uPortrait.z;
   float stretch = 0.0;
   for (int i = 0; i < 4; i++) {
     vec2 d = aUv - uGrab[i].xy;
     float len = length(uGrab[i].zw);
     float sigma = 0.064 * (1.0 + 0.4 * len);
     float w = exp(-dot(d,d) / (2.0 * sigma * sigma));
-    p += uGrab[i].zw * w * uStage.z;
+    position += uGrab[i].zw * w;
     stretch += w * len;
   }
   vUv = aUv;
+  vStage = position;
   vStretch = stretch;
-  vec2 clip = p / uView * 2.0 - 1.0;
+  vec2 clip = (uStage.xy + position * uStage.z) / uView * 2.0 - 1.0;
   gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
 }`;
 
 export const fragmentShader = `#version 300 es
 precision highp float;
 in vec2 vUv;
+in vec2 vStage;
 in float vStretch;
 uniform sampler2D uA;
 uniform sampler2D uB;
@@ -43,8 +47,12 @@ float blob(vec2 p, vec2 c, float r) {
 void main() {
   // Both textures are premultiplied: interpolate before unpremultiplying.
   vec4 c = mix(texture(uA,vUv),texture(uB,vUv),uMix);
-  float circle = 1.0-smoothstep(uDisc.z-uDisc.w,uDisc.z+uDisc.w,length(vUv-uDisc.xy));
-  c *= max(step(vUv.y,uDisc.y),circle);
+  // Clip AFTER mesh deformation in the disc's fixed stage coordinates.
+  // UV-space clipping deforms the mask and lets shoulders escape the circle.
+  float distanceToEdge = length(vStage-uDisc.xy)-uDisc.z;
+  float aa = max(fwidth(distanceToEdge),0.00001);
+  float circle = 1.0-smoothstep(-aa*0.5,aa*0.5,distanceToEdge);
+  c *= vStage.y <= uDisc.y ? 1.0 : circle;
   vec3 rgb = c.a > 0.001 ? c.rgb/c.a : vec3(0.0);
   float oval = 1.0-smoothstep(0.78,1.0,length((vUv-uFace.xy)/uFace.zw));
   // Warm skin only; dark hair, clothes, white eyes and the disc stay clean.

@@ -25,6 +25,7 @@ export const releaseExpressions: Expression[] = ["x_tongue", "x_laugh", "x_skept
  * would land near this portrait's chin. Keep skin masks inside the hair.
  */
 export const rig = {
+  portrait: { x: -0.05, y: -0.007, scale: 1.1 },
   disc: { x: 0.5, y: 0.575, r: 0.405 },
   nose: { x: 0.522, y: 0.361, r: 0.034 },
   cheeks: [{ x: 0.438, y: 0.397 }, { x: 0.599, y: 0.397 }],
@@ -32,6 +33,19 @@ export const rig = {
   hairLine: 0.228,
   sides: { left: 0.36, right: 0.652, jaw: 0.53 },
 } as const;
+
+/** Fixed stage-space mask: free space above the equator + the exact circle. */
+export function portraitMaskPath(units = 1000) {
+  const { x, y, r } = rig.disc;
+  const cx = x * units, cy = y * units, radius = r * units;
+  return `M${-2 * units},${-2 * units}H${3 * units}V${cy}H${-2 * units}Z ` +
+    `M${cx - radius},${cy}a${radius},${radius} 0 1,1 ${2 * radius},0a${radius},${radius} 0 1,1 ${-2 * radius},0Z`;
+}
+
+export function insidePortraitMask(x: number, y: number) {
+  const disc = rig.disc;
+  return y <= disc.y || Math.hypot(x - disc.x, y - disc.y) <= disc.r;
+}
 
 /**
  * Register expression textures to neutral before upload. Measured with a
