@@ -1,5 +1,6 @@
-import { insidePortraitMask, registration, rig, type Expression } from "./portrait-rig";
+import { expressions, insidePortraitMask, registration, rig, type Expression } from "./portrait-rig";
 import { fragmentShader, vertexShader } from "./shaders";
+import { BLUSH_SIZE, createBlushMask } from "./blush-mask";
 
 const GRID = 128;
 const ALPHA_SIZE = 128;
@@ -12,6 +13,8 @@ export class PortraitEngine {
   private vao: WebGLVertexArrayObject | null = null;
   private buffers: WebGLBuffer[] = [];
   private textures = new Map<Expression, WebGLTexture>();
+  private blushTexture: WebGLTexture | null = null;
+  private blushLayers = new Map<Expression, number>();
   private uniforms: Record<string, WebGLUniformLocation | null> = {};
   private alpha: Uint8ClampedArray = new Uint8ClampedArray();
   private outline: Point[][] = [];
@@ -42,10 +45,20 @@ export class PortraitEngine {
     this.gl = gl;
     try {
       this.program = this.compile();
-      for (const name of ["uView", "uStage", "uPortrait", "uGrab[0]", "uJolt", "uA", "uB", "uMix", "uDisc", "uCheeks", "uFace", "uNose", "uFlush"]) {
+      for (const name of ["uView", "uStage", "uPortrait", "uGrab[0]", "uJolt", "uA", "uB", "uMix", "uDisc", "uCheeks", "uFace", "uNose", "uFlush", "uBlush", "uBlushLayers"]) {
         this.uniforms[name] = gl.getUniformLocation(this.program, name);
       }
       this.createMesh();
+      this.blushTexture = gl.createTexture();
+      if (!this.blushTexture) throw new Error("Cannot allocate blush masks");
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.blushTexture);
+      gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.R8, BLUSH_SIZE, BLUSH_SIZE, Object.keys(expressions).length);
+      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.activeTexture(gl.TEXTURE0);
       this.addExpression("base", base);
       this.createAlpha(base);
       gl.enable(gl.BLEND);
@@ -129,6 +142,22 @@ export class PortraitEngine {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    // Read the same registered image used by the portrait, so expression
+    // framing and changing features cannot make a static mask drift.
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = maskCanvas.height = BLUSH_SIZE;
+    const maskContext = maskCanvas.getContext("2d", { willReadFrequently: true });
+    if (!maskContext) throw new Error("Cannot prepare blush mask");
+    maskContext.drawImage(c, 0, 0, BLUSH_SIZE, BLUSH_SIZE);
+    const mask = createBlushMask(maskContext.getImageData(0, 0, BLUSH_SIZE, BLUSH_SIZE).data);
+    const layer = this.blushLayers.size;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.blushTexture);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, BLUSH_SIZE, BLUSH_SIZE, 1, gl.RED, gl.UNSIGNED_BYTE, mask);
+    this.blushLayers.set(key, layer);
+    gl.activeTexture(gl.TEXTURE0);
+    maskCanvas.width = maskCanvas.height = 1;
     c.width = c.height = 1;
   }
 
@@ -396,6 +425,10 @@ export class PortraitEngine {
     gl.uniform3f(u.uNose, nose.x, nose.y, nose.r);
     gl.uniform1f(u.uFlush, this.flush);
     gl.uniform1f(u.uMix, this.mix);
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.blushTexture);
+    gl.uniform1i(u.uBlush, 2);
+    gl.uniform2f(u.uBlushLayers, this.blushLayers.get(this.a)!, this.blushLayers.get(this.b)!);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.textures.get(this.a)!);
     gl.activeTexture(gl.TEXTURE1);
@@ -412,10 +445,12 @@ export class PortraitEngine {
     cancelAnimationFrame(this.raf);
     const gl = this.gl;
     for (const texture of this.textures.values()) gl.deleteTexture(texture);
+    gl.deleteTexture(this.blushTexture);
     for (const buffer of this.buffers) gl.deleteBuffer(buffer);
     gl.deleteVertexArray(this.vao);
     if (this.program) gl.deleteProgram(this.program);
     this.textures.clear();
+    this.blushLayers.clear();
     this.outline = [];
   }
 }

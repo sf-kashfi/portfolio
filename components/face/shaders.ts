@@ -33,6 +33,8 @@ in vec2 vStage;
 in float vStretch;
 uniform sampler2D uA;
 uniform sampler2D uB;
+uniform highp sampler2DArray uBlush;
+uniform vec2 uBlushLayers;
 uniform float uMix;
 uniform vec4 uDisc;
 uniform vec4 uCheeks;
@@ -44,9 +46,24 @@ float blob(vec2 p, vec2 c, float r) {
   vec2 d = p-c;
   return exp(-dot(d,d)/(2.0*r*r));
 }
+vec4 flushedSkin(vec4 c, float layer) {
+  vec3 rgb = c.a > 0.001 ? c.rgb/c.a : vec3(0.0);
+  float mask = texture(uBlush,vec3(vUv,layer)).r;
+  // Recheck full-resolution source colour at feature edges: the small mask's
+  // bilinear filtering must never warm a hair, white tooth or eye pixel.
+  float skin = smoothstep(0.025,0.11,rgb.g-rgb.b)
+    *smoothstep(0.30,0.58,rgb.r)*smoothstep(0.075,0.20,rgb.r-rgb.g);
+  float amount = mask*skin;
+  // Multiplicative colour keeps the original highlight/shadow texture; use
+  // red-channel headroom instead of gain to avoid clipping away highlights.
+  rgb.r += (1.0-rgb.r)*0.75*amount;
+  rgb.gb *= vec2(1.0)-vec2(0.55,0.38)*amount;
+  return vec4(rgb*c.a,c.a);
+}
 void main() {
   // Both textures are premultiplied: interpolate before unpremultiplying.
-  vec4 c = mix(texture(uA,vUv),texture(uB,vUv),uMix);
+  vec4 a = texture(uA,vUv), b = texture(uB,vUv);
+  vec4 c = mix(a,b,uMix);
   // Clip AFTER mesh deformation in the disc's fixed stage coordinates.
   // UV-space clipping deforms the mask and lets shoulders escape the circle.
   float distanceToEdge = length(vStage-uDisc.xy)-uDisc.z;
@@ -58,7 +75,17 @@ void main() {
   // Warm skin only; dark hair, clothes, white eyes and the disc stay clean.
   float skin = smoothstep(0.035,0.14,rgb.r-rgb.b)*smoothstep(0.16,0.38,rgb.r)*oval;
   float blush = blob(vUv,uCheeks.xy,0.039)+blob(vUv,uCheeks.zw,0.039)+0.7*blob(vUv,uNose.xy,uNose.z);
-  float amount = (blush*smoothstep(0.0,0.5,uFlush)+0.8*oval*smoothstep(0.4,1.0,uFlush)+min(vStretch*0.35,0.2))*skin;
+  // Preserve the original rosy cheeks through 50% patience, exactly. Below
+  // that point replace the old face-wide oval, rather than intensifying it.
+  float subtleFlush = min(uFlush,0.5);
+  float amount = (blush*smoothstep(0.0,0.5,subtleFlush)+0.8*oval*smoothstep(0.4,1.0,subtleFlush)+min(vStretch*0.35,0.2))*skin;
   rgb *= mix(vec3(1.0),vec3(1.08,0.58,0.57),clamp(amount,0.0,0.85));
+  if (uFlush > 0.5) {
+    // Tint each expression before crossfading. A cheek from one texture must
+    // not lend its skin mask to the other's moving eyes, teeth or hair.
+    vec4 warm = mix(flushedSkin(a,uBlushLayers.x),flushedSkin(b,uBlushLayers.y),uMix);
+    vec3 warmRgb = warm.a > 0.001 ? warm.rgb/warm.a : vec3(0.0);
+    rgb = mix(rgb,warmRgb,smoothstep(0.5,1.0,uFlush));
+  }
   outColor = vec4(rgb*c.a,c.a);
 }`;
