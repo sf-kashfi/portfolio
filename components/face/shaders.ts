@@ -36,7 +36,8 @@ uniform sampler2D uB;
 uniform highp sampler2DArray uBlush;
 uniform vec2 uBlushLayers;
 uniform float uMix;
-uniform vec4 uDisc;
+uniform vec4 uBackdrop;
+uniform vec3 uBackdropShape;
 uniform vec4 uCheeks;
 uniform vec4 uFace;
 uniform vec3 uNose;
@@ -64,15 +65,18 @@ void main() {
   // Both textures are premultiplied: interpolate before unpremultiplying.
   vec4 a = texture(uA,vUv), b = texture(uB,vUv);
   vec4 c = mix(a,b,uMix);
-  // Clip AFTER mesh deformation in the disc's fixed stage coordinates.
-  // UV-space clipping deforms the mask and lets shoulders escape the circle.
-  float distanceToEdge = length(vStage-uDisc.xy)-uDisc.z;
+  // Clip AFTER deformation in fixed stage space, using the same rotated
+  // superellipse as the SVG and CPU picker. The head can break the top edge.
+  vec2 d = vStage-uBackdrop.xy;
+  vec2 p = vec2(uBackdropShape.x*d.x+uBackdropShape.y*d.y,
+    -uBackdropShape.y*d.x+uBackdropShape.x*d.y)/uBackdrop.zw;
+  float distanceToEdge = pow(abs(p.x),uBackdropShape.z)+pow(abs(p.y),uBackdropShape.z)-1.0;
   float aa = max(fwidth(distanceToEdge),0.00001);
-  float circle = 1.0-smoothstep(-aa*0.5,aa*0.5,distanceToEdge);
-  c *= vStage.y <= uDisc.y ? 1.0 : circle;
+  float pebble = 1.0-smoothstep(-aa*0.5,aa*0.5,distanceToEdge);
+  c *= vStage.y <= uBackdrop.y ? 1.0 : pebble;
   vec3 rgb = c.a > 0.001 ? c.rgb/c.a : vec3(0.0);
   float oval = 1.0-smoothstep(0.78,1.0,length((vUv-uFace.xy)/uFace.zw));
-  // Warm skin only; dark hair, clothes, white eyes and the disc stay clean.
+  // Warm skin only; dark hair, clothes, white eyes and the backdrop stay clean.
   float skin = smoothstep(0.035,0.14,rgb.r-rgb.b)*smoothstep(0.16,0.38,rgb.r)*oval;
   float blush = blob(vUv,uCheeks.xy,0.039)+blob(vUv,uCheeks.zw,0.039)+0.7*blob(vUv,uNose.xy,uNose.z);
   // Preserve the original rosy cheeks through 50% patience, exactly. Below

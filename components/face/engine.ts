@@ -45,7 +45,7 @@ export class PortraitEngine {
     this.gl = gl;
     try {
       this.program = this.compile();
-      for (const name of ["uView", "uStage", "uPortrait", "uGrab[0]", "uJolt", "uA", "uB", "uMix", "uDisc", "uCheeks", "uFace", "uNose", "uFlush", "uBlush", "uBlushLayers"]) {
+      for (const name of ["uView", "uStage", "uPortrait", "uGrab[0]", "uJolt", "uA", "uB", "uMix", "uBackdrop", "uBackdropShape", "uCheeks", "uFace", "uNose", "uFlush", "uBlush", "uBlushLayers"]) {
         this.uniforms[name] = gl.getUniformLocation(this.program, name);
       }
       this.createMesh();
@@ -407,7 +407,7 @@ export class PortraitEngine {
 
   private draw() {
     const gl = this.gl, u = this.uniforms;
-    const { disc, cheeks, face, nose } = rig;
+    const { backdrop, cheeks, face, nose } = rig;
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -419,7 +419,8 @@ export class PortraitEngine {
     this.slots.forEach((s, i) => { if (s.live) this.grabs.set([s.u, s.v, s.x, s.y], i * 4); });
     gl.uniform4fv(u["uGrab[0]"], this.grabs);
     gl.uniform2f(u.uJolt, this.jolt.x, this.jolt.y);
-    gl.uniform4f(u.uDisc, disc.x, disc.y, disc.r, 1 / this.stage.size);
+    gl.uniform4f(u.uBackdrop, backdrop.x, backdrop.y, backdrop.rx, backdrop.ry);
+    gl.uniform3f(u.uBackdropShape, Math.cos(backdrop.angle), Math.sin(backdrop.angle), backdrop.power);
     gl.uniform4f(u.uCheeks, cheeks[0].x, cheeks[0].y, cheeks[1].x, cheeks[1].y);
     gl.uniform4f(u.uFace, face.x, face.y, face.rx, face.ry);
     gl.uniform3f(u.uNose, nose.x, nose.y, nose.r);

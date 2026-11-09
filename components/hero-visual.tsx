@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { expressions, faceSource, grabExpression, portraitMaskPath, releaseExpressions, rig, type Expression } from "./face/portrait-rig";
+import { backdropPath, expressions, faceSource, grabExpression, portraitMaskPath, releaseExpressions, rig, type Expression } from "./face/portrait-rig";
 import type { PortraitEngine } from "./face/engine";
 
 const BLEED = 0.35;
@@ -300,7 +300,21 @@ export function HeroVisual() {
   return (
     <div ref={rootRef} className="face-portrait relative mx-auto aspect-square w-full max-w-[560px] select-none" data-expression="base" tabIndex={0} role="group" aria-label="Interactive portrait of Fatemeh Kashfi. Drag the face to stretch it, or press Enter for a reaction.">
       <div className="face-stage pointer-events-none absolute inset-[4%]">
-        <div className="face-disc absolute rounded-full" style={{ left: `${(rig.disc.x - rig.disc.r) * 100}%`, top: `${(rig.disc.y - rig.disc.r) * 100}%`, width: `${rig.disc.r * 200}%`, height: `${rig.disc.r * 200}%` }} />
+        <svg className="face-backdrop absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 1000 1000" aria-hidden="true">
+          <defs>
+            <linearGradient id={`${clipId}-color`} x1="0" y1="0" x2="1" y2="1">
+              <stop stopColor="var(--portrait-light)" />
+              <stop offset="0.55" stopColor="var(--portrait-mid)" />
+              <stop offset="1" stopColor="var(--portrait-deep)" />
+            </linearGradient>
+            <radialGradient id={`${clipId}-sheen`} cx="0.26" cy="0.16" r="0.8">
+              <stop stopColor="var(--portrait-sheen)" />
+              <stop offset="1" stopColor="var(--portrait-sheen)" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <path d={backdropPath()} fill={`url(#${clipId}-color)`} />
+          <path d={backdropPath()} fill={`url(#${clipId}-sheen)`} stroke="var(--portrait-rim)" strokeWidth="1.5" />
+        </svg>
         <svg className="face-static absolute inset-0 h-full w-full" viewBox="0 0 1000 1000" role="img" aria-label="Portrait of Fatemeh Kashfi">
           <defs><clipPath id={clipId} clipPathUnits="userSpaceOnUse"><path d={portraitMaskPath()} /></clipPath></defs>
           <g clipPath={`url(#${clipId})`}>

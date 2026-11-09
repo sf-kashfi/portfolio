@@ -1,5 +1,10 @@
 .face-portrait {
-  --portrait-disc: #344de6;
+  --portrait-light: color-mix(in srgb, var(--surface-lavender) 82%, var(--surface));
+  --portrait-mid: color-mix(in srgb, var(--surface-lavender) 74%, var(--secondary));
+  --portrait-deep: color-mix(in srgb, var(--surface-lavender) 52%, var(--secondary));
+  --portrait-sheen: #fff9ed70;
+  --portrait-rim: #fffaf06b;
+  --portrait-shadow: #51456826;
   isolation: isolate;
   align-self: center;
   outline: none;
@@ -10,12 +15,17 @@
   outline-offset: 8px;
   border-radius: 30px;
 }
-.face-disc {
-  background: var(--portrait-disc);
-  box-shadow: 0 14px 40px #263caa26, inset 0 1px 0 #ffffff24;
+.face-backdrop {
+  filter: drop-shadow(0 14px 18px var(--portrait-shadow));
 }
-.dark .face-portrait { --portrait-disc: #4358e8; }
-.dark .face-disc { box-shadow: 0 14px 50px #080c364d, inset 0 1px 0 #ffffff1a; }
+.dark .face-portrait {
+  --portrait-light: color-mix(in srgb, var(--surface-lavender) 58%, var(--secondary));
+  --portrait-mid: color-mix(in srgb, var(--surface-lavender) 72%, var(--secondary));
+  --portrait-deep: color-mix(in srgb, var(--surface-lavender) 88%, var(--secondary));
+  --portrait-sheen: #e9d8ff17;
+  --portrait-rim: #e9d8ff29;
+  --portrait-shadow: #0807104d;
+}
 .face-static { opacity: 1; }
 .face-canvas {
   left: -35%;

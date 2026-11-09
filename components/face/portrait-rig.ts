@@ -25,8 +25,8 @@ export const releaseExpressions: Expression[] = ["x_tongue", "x_laugh", "x_skept
  * would land near this portrait's chin. Keep skin masks inside the hair.
  */
 export const rig = {
-  portrait: { x: -0.05, y: -0.007, scale: 1.1 },
-  disc: { x: 0.5, y: 0.575, r: 0.405 },
+  portrait: { x: -0.06, y: -0.012, scale: 1.12 },
+  backdrop: { x: 0.5, y: 0.565, rx: 0.385, ry: 0.37, angle: -0.105, power: 2.6 },
   nose: { x: 0.522, y: 0.361, r: 0.034 },
   cheeks: [{ x: 0.438, y: 0.397 }, { x: 0.599, y: 0.397 }],
   face: { x: 0.514, y: 0.36, rx: 0.139, ry: 0.184 },
@@ -34,17 +34,29 @@ export const rig = {
   sides: { left: 0.36, right: 0.652, jaw: 0.53 },
 } as const;
 
-/** Fixed stage-space mask: free space above the equator + the exact circle. */
+export function backdropPath(units = 1000) {
+  const { x, y, rx, ry, angle, power } = rig.backdrop;
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  return Array.from({ length: 160 }, (_, i) => {
+    const t = i / 160 * Math.PI * 2;
+    const a = Math.cos(t), b = Math.sin(t);
+    const px = rx * Math.sign(a) * Math.abs(a) ** (2 / power);
+    const py = ry * Math.sign(b) * Math.abs(b) ** (2 / power);
+    return `${i ? "L" : "M"}${((x + cos * px - sin * py) * units).toFixed(3)},${((y + sin * px + cos * py) * units).toFixed(3)}`;
+  }).join("") + "Z";
+}
+
 export function portraitMaskPath(units = 1000) {
-  const { x, y, r } = rig.disc;
-  const cx = x * units, cy = y * units, radius = r * units;
-  return `M${-2 * units},${-2 * units}H${3 * units}V${cy}H${-2 * units}Z ` +
-    `M${cx - radius},${cy}a${radius},${radius} 0 1,1 ${2 * radius},0a${radius},${radius} 0 1,1 ${-2 * radius},0Z`;
+  return `M${-2 * units},${-2 * units}H${3 * units}V${rig.backdrop.y * units}H${-2 * units}Z ` + backdropPath(units);
 }
 
 export function insidePortraitMask(x: number, y: number) {
-  const disc = rig.disc;
-  return y <= disc.y || Math.hypot(x - disc.x, y - disc.y) <= disc.r;
+  const { x: cx, y: cy, rx, ry, angle, power } = rig.backdrop;
+  if (y <= cy) return true;
+  const dx = x - cx, dy = y - cy;
+  const px = (Math.cos(angle) * dx + Math.sin(angle) * dy) / rx;
+  const py = (-Math.sin(angle) * dx + Math.cos(angle) * dy) / ry;
+  return Math.abs(px) ** power + Math.abs(py) ** power <= 1;
 }
 
 /**
