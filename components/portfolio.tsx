@@ -175,12 +175,12 @@ function Header() {
           "site-header",
           open && "is-menu-open",
           "grid grid-cols-[minmax(0,1fr)_auto] items-center md:grid-cols-[1fr_auto_1fr]",
-          "md:min-h-[68px] md:rounded-[22px] md:px-3.5 md:py-2",
+          "md:min-h-[68px] md:rounded-[20px] md:px-3 md:py-2",
         )}
       >
         <a className="brand min-w-0" href="#top" aria-label="Fatemeh Kashfi, home" onClick={() => setOpen(false)}>
           <span className="brand-mark">FK</span>
-          <span className="hidden sm:inline">Fatemeh Kashfi</span>
+          <span className="hidden sm:inline md:text-xs lg:text-[15px]">Fatemeh Kashfi</span>
         </a>
         <nav className={cn("desktop-nav", "hidden items-center md:flex")} aria-label="Primary navigation">
           {navItems.map((item) => (
@@ -382,7 +382,7 @@ function ProjectDialog({ project }: { project: Project }) {
           className={cn(
             "dialog-content",
             "fixed inset-3 z-[120] flex max-h-none w-auto max-w-none flex-col overflow-hidden",
-            "md:inset-auto md:left-1/2 md:top-1/2 md:w-[min(100%-48px,980px)]",
+            "md:inset-auto md:left-1/2 md:top-1/2 md:w-[min(calc(100%_-_48px),980px)]",
             "md:max-h-[min(90svh,900px)] md:-translate-x-1/2 md:-translate-y-1/2",
           )}
         >
@@ -522,7 +522,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
           id="top"
           className={cn(
             "hero section-shell",
-            "grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-y-6 lg:gap-x-10 xl:gap-x-16",
+            "grid grid-cols-1 min-[768px]:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-6 lg:gap-x-8 xl:gap-x-12",
           )}
         >
           <div className="hero-copy min-w-0">
@@ -566,7 +566,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
           >
             <HeroVisual />
           </motion.div>
-          <div className={cn("metric-strip", "grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3")}>
+          <div className={cn("metric-strip", "grid grid-cols-1 xs:grid-cols-2 min-[768px]:grid-cols-4 gap-3")}>
             {metrics.map((metric, index) => (
               <Reveal key={metric.label} delay={index * 0.06} className="metric min-w-0">
                 <strong>{metric.value}</strong><span>{metric.label}</span>
@@ -582,12 +582,12 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
             title="Built for complexity. Designed for people."
             copy="Selected enterprise products and platforms I've designed and built. Explore each case study for the product challenge, engineering approach, stack, and measurable outcomes."
           />
-          <div className={cn("projects-grid", "grid grid-cols-1 md:grid-cols-2 gap-5")}>
+          <div className={cn("projects-grid", "grid grid-cols-1 sm:grid-cols-2")}>
             {projects.slice(0, 4).map((project, index) => (
               <Reveal
                 key={project.slug}
                 delay={index * 0.08}
-                className={cn("project-card", "min-w-0 md:col-span-1")}
+                className={cn("project-card", "min-w-0 sm:col-span-1")}
               >
                 <ProjectPreview project={project} />
                 <div className="project-copy min-w-0">
@@ -629,7 +629,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
                 delay={index * 0.07}
                 className={cn(
                   "timeline-item",
-                  "grid grid-cols-[36px_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,1fr)] md:grid-cols-[58px_minmax(0,0.65fr)_minmax(0,1.55fr)]",
+                  "grid grid-cols-[36px_minmax(0,1fr)] md:grid-cols-[36px_minmax(0,0.55fr)_minmax(0,1.65fr)]",
                 )}
               >
                 <div className="timeline-rail"><span>{String(index + 1).padStart(2, "0")}</span></div>
@@ -637,7 +637,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
                   <span>{item.period}</span>
                   <small>{item.domain}</small>
                 </div>
-                <div className={cn("timeline-content", "col-start-2 min-w-0 md:col-auto")}>
+                <div className={cn("timeline-content", "col-span-2 col-start-1 min-w-0 sm:col-span-1 sm:col-start-2 md:col-auto")}>
                   <h3>{item.role}</h3>
                   <h4>{item.company}</h4>
                   <p>{item.summary}</p>
@@ -655,7 +655,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
             title="A frontend discipline that reaches beyond the screen."
             copy="I work across product thinking, architecture, interaction design, data flow, quality, and delivery."
           />
-          <div className={cn("skills-bento", "grid grid-cols-1 md:grid-cols-2 gap-5")}>
+          <div className={cn("skills-bento", "grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6")}>
             {skillGroups.map((group, index) => {
               const Icon = [Code2, Layers3, Palette, Check][index];
               return (
@@ -669,7 +669,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
               );
             })}
           </div>
-          <Reveal className={cn("technology-cloud", "grid grid-cols-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-7")}>
+          <Reveal className={cn("technology-cloud", "grid grid-cols-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-6")}>
             <div className="min-w-0">
               <span className="section-kicker"><span>Stack</span>Daily tools</span>
               <h3>Modern where it matters. Pragmatic everywhere.</h3>
@@ -695,7 +695,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
             </Reveal>
           </div>
           <div className={cn("profile-cards", "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4")}>
-            <Reveal className={cn("profile-card education-card", "min-w-0 sm:col-span-2 lg:col-span-1")}>
+            <Reveal className={cn("profile-card education-card", "min-w-0")}>
               <GraduationCap size={22} />
               <span>Education</span>
               <h3>{education.degree}</h3>
@@ -728,7 +728,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
             </p>
           </Reveal>
 
-          <div className={cn("references-grid", "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4")}>
+          <div className={cn("references-grid", "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6")}>
             {recommendations.map((recommendation, index) => (
               <Reveal
                 key={recommendation.name}
@@ -786,9 +786,9 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
 
         <section
           id="contact"
-          className={cn("section section-shell contact-section", "grid grid-cols-1 md:grid-cols-12 gap-10")}
+          className={cn("section section-shell contact-section", "grid grid-cols-1 md:grid-cols-12")}
         >
-          <Reveal className={cn("contact-copy", "min-w-0 md:col-span-4")}>
+          <Reveal className={cn("contact-copy", "min-w-0 md:col-span-5")}>
             <span className="section-kicker"><span>06</span>Contact</span>
             <h2>Have a complex product that needs clarity?</h2>
             <p>I&apos;m open to senior and lead frontend roles, product engineering work, and thoughtful collaborations.</p>
