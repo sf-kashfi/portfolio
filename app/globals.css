@@ -649,7 +649,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
     align-content: start;
     gap: var(--grid-gap);
     min-height: auto;
-    padding: clamp(28px, 3.3vw, 48px) var(--section-inline) var(--space-6);
+    padding: clamp(28px, 2.5vw, 36px) clamp(20px, 2.2vw, 32px) var(--space-6);
   }
 
   .hero::before {
@@ -745,7 +745,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero .tech-text h1 {
     max-width: 760px;
     margin: 0;
-    font-size: clamp(1.75rem, 12.3cqi, 4.5rem);
+    font-size: clamp(1.75rem, 13.4cqi, 4.5rem);
     font-weight: 720;
     letter-spacing: -0.015em;
     line-height: 1.08;
@@ -756,6 +756,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero .tech-text [data-tech-line] {
     display: block;
     white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .hero .tech-text h1 { font-size: clamp(1.75rem, 13.4cqi, 5.25rem); }
   }
 
   .hero .tech-text .tech-text-accent { color: var(--primary); }

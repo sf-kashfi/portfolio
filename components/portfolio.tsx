@@ -522,7 +522,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
           id="top"
           className={cn(
             "hero section-shell",
-            "grid grid-cols-1 min-[768px]:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-6 lg:gap-x-8 xl:gap-x-12",
+            "grid grid-cols-1 min-[768px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-y-6 gap-x-4",
           )}
         >
           <div className="hero-copy min-w-0">

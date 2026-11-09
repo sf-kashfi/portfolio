@@ -298,7 +298,7 @@ export function HeroVisual() {
   }, []);
 
   return (
-    <div ref={rootRef} className="face-portrait relative mx-auto aspect-square w-full max-w-[400px] select-none md:max-w-[480px]" data-expression="base" tabIndex={0} role="group" aria-label="Interactive portrait of Fatemeh Kashfi. Drag the face to stretch it, or press Enter for a reaction.">
+    <div ref={rootRef} className="face-portrait relative mx-auto aspect-square w-full max-w-[440px] select-none min-[768px]:max-w-[640px]" data-expression="base" tabIndex={0} role="group" aria-label="Interactive portrait of Fatemeh Kashfi. Drag the face to stretch it, or press Enter for a reaction.">
       <div className="face-stage pointer-events-none absolute inset-[4%]">
         <svg className="face-backdrop absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 1000 1000" aria-hidden="true">
           <defs>
