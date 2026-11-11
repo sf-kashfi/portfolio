@@ -151,10 +151,10 @@ export const experience = [
     summary:
       "Developed data-intensive trading and investment products used in high-traffic financial operations.",
     highlights: [
-      "Improved order-management UI performance by 30% with React, TypeScript, and Redux.",
-      "Integrated Material UI and AG Grid to streamline operational workflows, contributing to a 20% task-efficiency gain.",
-      "Reduced load time by 15% while maintaining and refactoring ExtJS and AngularJS systems.",
-      "Delivered a concurrent SharePoint and React smart-office project that optimized content workflows by 25%.",
+      "Optimized an order-management UI built with React, TypeScript, Redux, and Redux-Saga for performance and scalability.",
+      "Integrated Material UI and AG Grid to streamline trading and operational processes.",
+      "Maintained and refactored legacy ExtJS and AngularJS applications.",
+      "In parallel, delivered a smart-office solution using SharePoint and React, streamlining content-management processes by approximately 25%.",
     ],
   },
 ];
@@ -971,7 +971,7 @@ const projectCatalog: Project[] = [
     stackGroups: [
       { label: "Core", items: ["Next.js App Router", "React", "TypeScript", "Modular application shell"] },
       { label: "Workspace", items: ["Custom window manager", "Portal-aware stacking", "Container Queries", "Taskbar state"] },
-      { label: "Data & forms", items: ["TanStack Query", "Typed services", "React Hook Form","Zod", "Domain validation"] },
+      { label: "Data & forms", items: ["TanStack Query", "Typed services", "React Hook Form", "Zod", "Domain validation"] },
       { label: "UI & RTL", items: ["Shadcn/ui", "TanStack Table", "Tailwind CSS", "Recharts"] },
       { label: "Operations", items: ["Kanban", "Meeting workflows", "Excel export", "Analytics reporting"] },
       { label: "Quality", items: ["Playwright", "Lifecycle E2E coverage", "Permission scenarios"] },
