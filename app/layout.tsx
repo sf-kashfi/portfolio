@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
+import { CodeGlitchBackground } from "@/components/code-glitch-background";
 import "./globals.css";
 
 const geist = Geist({
@@ -64,7 +65,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geist.variable} ${geistMono.variable}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <CodeGlitchBackground />
+          {children}
+        </Providers>
       </body>
     </html>
   );
