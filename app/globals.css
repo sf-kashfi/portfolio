@@ -1126,6 +1126,63 @@ button, a { -webkit-tap-highlight-color: transparent; }
     transition: border-color 220ms ease, transform 260ms ease, box-shadow 260ms ease;
   }
 
+  .surface-light {
+    --surface-light-color: var(--preview-color, var(--primary));
+    --surface-light-wash: color-mix(in srgb, var(--surface-light-color) 7%, transparent);
+    --surface-light-edge: color-mix(in srgb, var(--surface-light-color) 52%, transparent);
+    isolation: isolate;
+  }
+
+  .dark .surface-light {
+    --surface-light-wash: color-mix(in srgb, var(--surface-light-color) 9%, transparent);
+    --surface-light-edge: color-mix(in srgb, var(--surface-light-color) 62%, transparent);
+  }
+
+  .surface-light > * { position: relative; z-index: 1; }
+
+  .surface-light::before,
+  .surface-light::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 280ms ease;
+  }
+
+  .surface-light::before {
+    z-index: 0;
+    background: radial-gradient(
+      circle 320px at var(--surface-light-x, 50%) var(--surface-light-y, 50%),
+      var(--surface-light-wash), transparent 100%
+    );
+  }
+
+  .surface-light::after {
+    z-index: 2;
+    padding: 1px;
+    background: radial-gradient(
+      circle 220px at var(--surface-light-x, 50%) var(--surface-light-y, 50%),
+      var(--surface-light-edge), transparent 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  @media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .surface-light[data-light-active]::before,
+    .surface-light[data-light-active]::after { opacity: 1; }
+  }
+
+  .surface-light:has(:focus-visible)::before { opacity: 0; }
+  .surface-light:has(:focus-visible)::after {
+    opacity: 1;
+    background: color-mix(in srgb, var(--primary) 42%, transparent);
+  }
+
   .project-card:hover,
   .skill-card:hover,
   .reference-card article:hover,

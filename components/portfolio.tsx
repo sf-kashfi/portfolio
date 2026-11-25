@@ -30,7 +30,7 @@ import Link from "next/link";
 import { AccordionGallery } from "@/components/accordion-gallery";
 import { HeroVisual } from "@/components/hero-visual";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore, type Ref } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -48,6 +48,7 @@ import {
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/cn";
 import { projectGalleryCrops } from "@/lib/project-gallery-crops";
+import { useSurfaceLight } from "@/lib/use-surface-light";
 
 const navItems = [
   { label: "Home", href: "#top" },
@@ -99,14 +100,17 @@ function Reveal({
   children,
   delay = 0,
   className,
+  ref,
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  ref?: Ref<HTMLDivElement>;
 }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.div
+      ref={ref}
       className={className}
       variants={reveal}
       initial={reduceMotion ? false : "hidden"}
@@ -401,6 +405,29 @@ function ProjectDialog({ project }: { project: Project }) {
   );
 }
 
+function FeaturedProjectCard({ project, index }: { project: Project; index: number }) {
+  const surfaceRef = useSurfaceLight<HTMLDivElement>();
+
+  return (
+    <Reveal
+      ref={surfaceRef}
+      delay={index * 0.08}
+      className={cn("project-card surface-light", `accent-${project.accent}`, "min-w-0 sm:col-span-1")}
+    >
+      <ProjectPreview project={project} />
+      <div className="project-copy min-w-0">
+        <div className="project-label-row">
+          <span className="project-eyebrow">{project.eyebrow}</span>
+        </div>
+        <h3>{project.title}</h3>
+        <p>{project.summary}</p>
+        <div className="tech-row">{project.tech.slice(0, 4).map((tech) => <span key={tech}>{tech}</span>)}</div>
+        <ProjectDialog project={project} />
+      </div>
+    </Reveal>
+  );
+}
+
 function ContactForm() {
   const {
     register,
@@ -554,22 +581,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
           />
           <div className={cn("projects-grid", "grid grid-cols-1 sm:grid-cols-2")}>
             {projects.slice(0, 4).map((project, index) => (
-              <Reveal
-                key={project.slug}
-                delay={index * 0.08}
-                className={cn("project-card", `accent-${project.accent}`, "min-w-0 sm:col-span-1")}
-              >
-                <ProjectPreview project={project} />
-                <div className="project-copy min-w-0">
-                  <div className="project-label-row">
-                    <span className="project-eyebrow">{project.eyebrow}</span>
-                  </div>
-                  <h3>{project.title}</h3>
-                  <p>{project.summary}</p>
-                  <div className="tech-row">{project.tech.slice(0, 4).map((tech) => <span key={tech}>{tech}</span>)}</div>
-                  <ProjectDialog project={project} />
-                </div>
-              </Reveal>
+              <FeaturedProjectCard key={project.slug} project={project} index={index} />
             ))}
           </div>
           <Reveal
