@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectGallery } from "@/components/project-gallery";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/cn";
 import { projects } from "@/lib/portfolio-data";
 
@@ -24,10 +25,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   if (!project) notFound();
 
   return (
-    <main className="case-page section-shell">
-      <nav className={cn("case-nav", "flex flex-wrap items-center justify-between")}>
+    <>
+    <a className="skip-link" href="#case-content">Skip to case study</a>
+    <main id="case-content" className="case-page section-shell" tabIndex={-1}>
+      <nav className={cn("case-nav", "flex flex-wrap items-center justify-between")} aria-label="Case study navigation">
         <Link href="/#work" className="min-h-11"><ArrowLeft size={16} /> Back to portfolio</Link>
-        <span className="max-sm:w-full">Fatemeh Kashfi · Selected work</span>
+        <div className="flex items-center gap-3"><span className="hidden sm:inline">Fatemeh Kashfi · Selected work</span><ThemeToggle /></div>
       </nav>
 
       <header className={cn("case-hero", "grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] items-start")}>
@@ -181,5 +184,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <a href="mailto:kashfi.sf@gmail.com" className="min-h-11">Discuss a project <ArrowUpRight size={16} /></a>
       </footer>
     </main>
+    </>
   );
 }

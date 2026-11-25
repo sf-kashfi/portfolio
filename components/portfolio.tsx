@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import {
   ArrowDown,
   ArrowRight,
@@ -18,18 +18,18 @@ import {
   Mail,
   MapPin,
   Menu,
-  Moon,
   Palette,
   Send,
   GamepadDirectional,
   Hand,
-  Sun,
   X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import Link from "next/link";
 import { AccordionGallery } from "@/components/accordion-gallery";
 import { HeroVisual } from "@/components/hero-visual";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -59,9 +59,9 @@ const navItems = [
 ];
 
 const formSchema = z.object({
-  name: z.string().min(2, "Please enter your name."),
-  email: z.string().email("Enter a valid email address."),
-  message: z.string().min(12, "Tell me a little more about your project."),
+  name: z.string().trim().min(2, "Please enter your name."),
+  email: z.string().trim().email("Enter a valid email address."),
+  message: z.string().trim().min(12, "Tell me a little more about your project."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -109,73 +109,44 @@ function Reveal({
     <motion.div
       className={className}
       variants={reveal}
-      initial="hidden"
+      initial={reduceMotion ? false : "hidden"}
       whileInView="visible"
       viewport={{ once: true, margin: "-48px" }}
-      transition={{ duration: reduceMotion ? 0 : 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: reduceMotion ? 0 : 0.4, delay: reduceMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
   );
 }
 
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
-
-  return (
-    <button
-      className={cn("icon-button", "min-h-11 min-w-11")}
-      type="button"
-      aria-label={mounted && resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-    >
-      {!mounted ? <Moon size={17} /> : resolvedTheme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-    </button>
-  );
-}
-
 function Header() {
   const [open, setOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("#top");
 
   useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    const onResize = () => {
-      if (window.matchMedia("(min-width: 960px)").matches) setOpen(false);
-    };
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", onKeyDown);
-    window.addEventListener("resize", onResize);
-
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) setActiveSection(`#${entry.target.id}`);
+      }
+    }, { rootMargin: "-15% 0px -60% 0px" });
+    document.querySelectorAll(".portfolio-main > section[id]").forEach((section) => observer.observe(section));
+    const desktop = window.matchMedia("(min-width: 960px)");
+    const closeOnDesktop = () => { if (desktop.matches) setOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
     return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("resize", onResize);
+      observer.disconnect();
+      desktop.removeEventListener("change", closeOnDesktop);
     };
-  }, [open]);
+  }, []);
 
   return (
-    <>
-      {open && (
-        <button
-          className="mobile-nav-backdrop"
-          type="button"
-          aria-label="Close navigation"
-          onClick={() => setOpen(false)}
-        />
-      )}
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <header
         className={cn(
           "site-header",
           open && "is-menu-open",
           "grid grid-cols-[minmax(0,1fr)_auto] items-center md:grid-cols-[1fr_auto_1fr]",
-          "md:min-h-[68px] md:rounded-[20px] md:px-3 md:py-2",
+          "md:min-h-16 md:px-3 md:py-2",
         )}
       >
         <a className="brand min-w-0" href="#top" aria-label="Fatemeh Kashfi, home" onClick={() => setOpen(false)}>
@@ -184,7 +155,7 @@ function Header() {
         </a>
         <nav className={cn("desktop-nav", "hidden items-center md:flex")} aria-label="Primary navigation">
           {navItems.map((item) => (
-            <a key={item.href} href={item.href}>
+            <a key={item.href} href={item.href} aria-current={activeSection === item.href ? "location" : undefined}>
               {item.label}
             </a>
           ))}
@@ -194,40 +165,38 @@ function Header() {
           <a className={cn("header-cta", "hidden min-h-11 md:inline-flex")} href="#contact">
             Let&apos;s talk <ArrowUpRight size={15} />
           </a>
-          <button
-            className={cn("icon-button menu-button", "inline-grid min-h-11 min-w-11 md:hidden")}
-            type="button"
-            aria-label={open ? "Close navigation" : "Open navigation"}
-            aria-expanded={open}
-            aria-controls="mobile-navigation"
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-        <AnimatePresence>
-          {open && (
-            <motion.nav
-              id="mobile-navigation"
-              className={cn("mobile-nav", "absolute left-0 right-0 top-[calc(100%+8px)] z-[2]")}
-              aria-label="Mobile navigation"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
+          <Dialog.Trigger asChild>
+            <button
+              className={cn("icon-button menu-button", "inline-grid min-h-11 min-w-11 md:hidden")}
+              type="button"
+              aria-label={open ? "Close navigation" : "Open navigation"}
+              aria-expanded={open}
             >
-              {navItems.map((item) => (
-                <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
-                  {item.label} <ChevronRight size={16} />
-                </a>
-              ))}
-              <a href="#contact" onClick={() => setOpen(false)}>
-                Contact <ChevronRight size={16} />
-              </a>
-            </motion.nav>
-          )}
-        </AnimatePresence>
+              {open ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </Dialog.Trigger>
+        </div>
       </header>
-    </>
+      <Dialog.Portal>
+        <Dialog.Overlay className="mobile-nav-backdrop" />
+        <Dialog.Content className="mobile-nav" aria-describedby={undefined}>
+          <div className="mb-2 flex items-center justify-between border-b border-border pb-3">
+            <Dialog.Title className="text-sm font-semibold">Explore the portfolio</Dialog.Title>
+            <Dialog.Close className="icon-button" aria-label="Close navigation"><X size={18} /></Dialog.Close>
+          </div>
+          <nav aria-label="Mobile navigation">
+            {navItems.map((item) => (
+              <a key={item.href} href={item.href} aria-current={activeSection === item.href ? "location" : undefined} onClick={() => setOpen(false)}>
+                {item.label} <ChevronRight size={16} />
+              </a>
+            ))}
+            <a href="#contact" onClick={() => setOpen(false)}>
+              Contact <ChevronRight size={16} />
+            </a>
+          </nav>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -325,7 +294,7 @@ function ProjectPreview({ project, gallery = false }: { project: Project; galler
                 alt={hero.alt}
                 fill
                 loading="lazy"
-                sizes="(max-width: 640px) calc(100vw - 52px), (max-width: 840px) 65vw, (max-width: 1100px) 46vw, 52vw"
+                sizes="(max-width: 639px) 70vw, (max-width: 1280px) 35vw, 450px"
               />
               <figcaption>{hero.label}</figcaption>
             </figure>
@@ -337,7 +306,7 @@ function ProjectPreview({ project, gallery = false }: { project: Project; galler
                     alt={image.alt}
                     fill
                     loading="lazy"
-                    sizes="(max-width: 640px) calc(50vw - 31px), (max-width: 840px) 25vw, 20vw"
+                    sizes="(max-width: 639px) 30vw, (max-width: 1280px) 15vw, 180px"
                   />
                   <figcaption>{image.label}</figcaption>
                 </figure>
@@ -372,7 +341,7 @@ function ProjectDialog({ project }: { project: Project }) {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button className="text-link" type="button">
+        <button className="text-link" type="button" aria-label={`View ${project.title} case study`}>
           View case study <ArrowRight size={16} />
         </button>
       </Dialog.Trigger>
@@ -409,9 +378,9 @@ function ProjectDialog({ project }: { project: Project }) {
             <div className="dialog-footer">
               <div className="tech-row">{project.tech.map((tech) => <span key={tech}>{tech}</span>)}</div>
               <div className={cn("dialog-actions", "grid grid-cols-1 gap-3 sm:flex sm:flex-wrap")}>
-                <a className={cn("button button-secondary", "w-full min-h-11 sm:w-auto")} href={`/projects/${project.slug}`}>
+                <Link className={cn("button button-secondary", "w-full min-h-11 sm:w-auto")} href={`/projects/${project.slug}`}>
                   Full case study <ArrowRight size={16} />
-                </a>
+                </Link>
                 {project.link && (
                   <a
                     className={cn("button button-primary", "w-full min-h-11 sm:w-auto")}
@@ -446,27 +415,29 @@ function ContactForm() {
   };
 
   return (
-    <form className="contact-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="contact-form" onSubmit={handleSubmit(onSubmit)} noValidate aria-label="Start a conversation">
       <div className={cn("field-row", "grid grid-cols-1 sm:grid-cols-2 gap-4")}>
-        <label className="min-w-0">
-          <span>Name</span>
-          <input {...register("name")} placeholder="Your name" autoComplete="name" />
-          {errors.name && <small>{errors.name.message}</small>}
-        </label>
-        <label className="min-w-0">
-          <span>Email</span>
-          <input {...register("email")} placeholder="you@company.com" type="email" autoComplete="email" />
-          {errors.email && <small>{errors.email.message}</small>}
-        </label>
+        <div className="form-field min-w-0">
+          <label htmlFor="contact-name">Name</label>
+          <input id="contact-name" {...register("name")} placeholder="Your name" autoComplete="name" required aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? "name-error" : undefined} />
+          {errors.name && <small id="name-error" role="alert">{errors.name.message}</small>}
+        </div>
+        <div className="form-field min-w-0">
+          <label htmlFor="contact-email">Email</label>
+          <input id="contact-email" {...register("email")} placeholder="you@company.com" type="email" autoComplete="email" required aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "email-error" : undefined} />
+          {errors.email && <small id="email-error" role="alert">{errors.email.message}</small>}
+        </div>
       </div>
-      <label>
-        <span>How can I help?</span>
-        <textarea {...register("message")} placeholder="Tell me about the role, product, or problem…" rows={5} />
-        {errors.message && <small>{errors.message.message}</small>}
-      </label>
+      <div className="form-field">
+        <label htmlFor="contact-message">How can I help?</label>
+        <textarea id="contact-message" {...register("message")} placeholder="Tell me about the role, product, or problem…" rows={5} required aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "message-error" : "contact-form-note"} />
+        {errors.message && <small id="message-error" role="alert">{errors.message.message}</small>}
+      </div>
+      <p id="contact-form-note" className="form-note">This opens your email app with a draft. Your message is sent from there.</p>
       <button className={cn("button button-primary submit-button", "w-full min-h-11")} type="submit">
-        {isSubmitSuccessful ? "Opening your email client" : "Start a conversation"} <Send size={16} />
+        Compose email <Send size={16} />
       </button>
+      <p className="form-status" role="status">{isSubmitSuccessful ? "Email draft requested. You can also reach me using the email link." : ""}</p>
     </form>
   );
 }
@@ -513,16 +484,15 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
 
   return (
     <>
-      <motion.div className="scroll-progress" style={{ scaleX: progress }} />
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <motion.div className="scroll-progress" style={{ scaleX: progress }} aria-hidden="true" />
       <Header />
-      <main className="portfolio-main">
+      <main id="main-content" className="portfolio-main" tabIndex={-1}>
         <section
           id="top"
           className={cn(
             "hero section-shell",
-            "grid grid-cols-1 min-[768px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-y-6 gap-x-4",
+            "grid grid-cols-1 min-[768px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-y-6 gap-x-8",
           )}
         >
           <div className="hero-copy min-w-0">
@@ -587,7 +557,7 @@ export function Portfolio({ headline }: { headline: React.ReactNode }) {
               <Reveal
                 key={project.slug}
                 delay={index * 0.08}
-                className={cn("project-card", "min-w-0 sm:col-span-1")}
+                className={cn("project-card", `accent-${project.accent}`, "min-w-0 sm:col-span-1")}
               >
                 <ProjectPreview project={project} />
                 <div className="project-copy min-w-0">

@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ProjectImageTilt } from "@/components/project-image-tilt";
 import type { Project, ProjectImage } from "@/lib/portfolio-data";
 import { cn } from "@/lib/cn";
@@ -86,7 +86,13 @@ export function ProjectGallery({ project }: { project: Project }) {
   const gallery = project.gallery ?? omsGallery;
   const isBanking = project.previewVariant === "banking";
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const activeImage = activeIndex === null ? null : images[activeIndex];
+
+  const openImage = (index: number) => {
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setActiveIndex(index);
+  };
 
   const move = (direction: 1 | -1) => {
     setActiveIndex((current) => {
@@ -122,7 +128,7 @@ export function ProjectGallery({ project }: { project: Project }) {
                 "omid-mobile-hero-main",
                 "w-[min(72vw,280px)] shrink-0 snap-center md:order-2 md:w-full md:max-w-[280px]",
               )}
-              onOpen={() => setActiveIndex(0)}
+              onOpen={() => openImage(0)}
             />
             <ProductFrame
               image={images[1]}
@@ -130,7 +136,7 @@ export function ProjectGallery({ project }: { project: Project }) {
                 "omid-mobile-hero-left",
                 "w-[min(72vw,280px)] shrink-0 snap-center md:order-1 md:w-full md:max-w-[220px]",
               )}
-              onOpen={() => setActiveIndex(1)}
+              onOpen={() => openImage(1)}
             />
             <ProductFrame
               image={images[2]}
@@ -138,7 +144,7 @@ export function ProjectGallery({ project }: { project: Project }) {
                 "omid-mobile-hero-right",
                 "w-[min(72vw,280px)] shrink-0 snap-center md:order-3 md:w-full md:max-w-[220px]",
               )}
-              onOpen={() => setActiveIndex(2)}
+              onOpen={() => openImage(2)}
             />
           </div>
         ) : (
@@ -146,7 +152,7 @@ export function ProjectGallery({ project }: { project: Project }) {
             image={images[0]}
             priority
             className="product-frame-hero"
-            onOpen={() => setActiveIndex(0)}
+            onOpen={() => openImage(0)}
           />
         )}
 
@@ -196,7 +202,7 @@ export function ProjectGallery({ project }: { project: Project }) {
                       )}
                       key={image.label}
                     >
-                      <ProductFrame image={image} onOpen={() => setActiveIndex(imageIndex)} />
+                      <ProductFrame image={image} onOpen={() => openImage(imageIndex)} />
                       <div className="oms-gallery-caption">
                         <h4>{image.label}</h4>
                         <p>{image.description}</p>
@@ -215,6 +221,10 @@ export function ProjectGallery({ project }: { project: Project }) {
           <Dialog.Overlay className="gallery-lightbox-overlay" />
           <Dialog.Content
             className="gallery-lightbox"
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              openerRef.current?.focus({ preventScroll: true });
+            }}
             onKeyDown={(event) => {
               if (event.key === "ArrowRight") {
                 event.preventDefault();
@@ -233,7 +243,7 @@ export function ProjectGallery({ project }: { project: Project }) {
                     <Dialog.Title>{activeImage.label}</Dialog.Title>
                     <Dialog.Description>{activeImage.description}</Dialog.Description>
                   </div>
-                  <span>{String((activeIndex ?? 0) + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}</span>
+                  <span aria-live="polite" aria-atomic="true">{String((activeIndex ?? 0) + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}</span>
                   <Dialog.Close className={cn("gallery-lightbox-close", "min-h-11 min-w-11")} aria-label="Close expanded screenshot">
                     <X size={20} />
                   </Dialog.Close>
